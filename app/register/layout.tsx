@@ -16,7 +16,7 @@ export default function RegisterLayout({
       {/* Kanan: Welcome Panel */}
       <div className="hidden md:flex md:w-1/2 bg-gradient-to-br from-[#312c49] to-[#1e1f29] text-white items-center justify-center p-8">
         <div className="text-center space-y-4">
-          <h2 className="text-3xl font-bold text-purple-300">Join the Darkness</h2>
+          <h2 className="text-3xl font-bold text-purple-300">Selamat Datang</h2>
           <p className="text-gray-300">Sudah punya akun?</p>
           <Link
             href="/login"
