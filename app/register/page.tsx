@@ -47,7 +47,6 @@ export default function RegisterPage() {
     }
 
     alert('Registrasi berhasil!')
-    // redirect ke halaman lain jika perlu
   }
 
   return (
@@ -126,7 +125,6 @@ export default function RegisterPage() {
           />
         </div>
 
-        {/* Captcha */}
         <div>
           <label className="block mb-1 font-semibold">Captcha:</label>
           <div className="flex items-center gap-2 mb-2">
