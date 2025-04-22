@@ -58,7 +58,6 @@ export default function CatalogPage() {
         </Link>
       </header>
 
-      {/* Main */}
       <main className="p-4 flex-1">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {products.map((product, idx) => (
@@ -81,14 +80,12 @@ export default function CatalogPage() {
         </div>
       </main>
 
-      {/* Tombol Profil Toko */}
       <Link href="/catalog">
         <button className="fixed bottom-4 right-4 bg-blue-600 text-white px-4 py-2 rounded-full shadow-lg hover:bg-blue-500">
           Lanjut Katalog
         </button>
       </Link>
 
-      {/* Footer */}
       <footer className="p-4 text-center border-t border-white border-opacity-20">
         <div className="mb-2">© 2025 RANGGA GAMING STORE.</div>
         <div className="flex justify-center gap-6 text-2xl text-gray-300">
