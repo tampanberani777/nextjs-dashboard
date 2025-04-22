@@ -21,7 +21,7 @@ export default function LoginLayout({
             href="/register"
             className="inline-block bg-white- hover:bg-blue-700 text-white px-5 py-2 rounded font-semibold transition shadow"
           >
-            Sign Up
+            Register
           </Link>
         </div>
       </div>
