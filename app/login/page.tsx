@@ -36,7 +36,7 @@ export default function LoginPage() {
       return
     }
 
-    if (username === 'admin123' && password === '123456') {
+    if (username === 'admin123' && password === '12345') {
       router.push('/admin')
     } else if (username === 'user123' && password === '12345') {
       router.push('/')
