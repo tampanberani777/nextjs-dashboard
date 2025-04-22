@@ -6,13 +6,10 @@ import { MapPinIcon } from "@heroicons/react/24/outline";
 export default function StoreProfilePage() {
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
-      {/* Container hitam transparan */}
       <div className="bg-black/50 rounded-lg p-6 text-center space-y-8 backdrop-blur-sm">
         <h1 className="text-4xl font-bold">Store Profile</h1>
-
-        {/* Bagian gambar & logo */}
         <div className="flex flex-col md:flex-row items-center justify-center gap-8">
-          {/* Halaman Depan */}
+
           <div>
             <h2 className="text-xl font-semibold mb-2">Halaman Depan</h2>
             <div className="relative w-64 h-40 mx-auto">
@@ -25,7 +22,6 @@ export default function StoreProfilePage() {
             </div>
           </div>
 
-          {/* Logo Toko */}
           <div>
             <div className="relative w-40 h-40 mx-auto">
               <Image
@@ -37,7 +33,6 @@ export default function StoreProfilePage() {
             </div>
           </div>
 
-          {/* Halaman Tengah */}
           <div>
             <h2 className="text-xl font-semibold mb-2">Halaman Tengah</h2>
             <div className="relative w-64 h-40 mx-auto">
@@ -51,7 +46,6 @@ export default function StoreProfilePage() {
           </div>
         </div>
 
-        {/* Deskripsi Toko */}
         <p className="mx-auto max-w-3xl">
           Rangga Gaming Store adalah toko perlengkapan gaming yang menyediakan
           berbagai jenis konsol, keperluan gaming, dan berbagai game terbaru
@@ -59,7 +53,6 @@ export default function StoreProfilePage() {
           untuk pelanggan mencoba game sebelum dibeli.
         </p>
 
-        {/* Alamat & Kontak */}
         <div className="space-y-1">
           <p className="flex items-center justify-center gap-2">
             <MapPinIcon className="h-5 w-5" />
