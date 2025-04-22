@@ -33,7 +33,7 @@ export default function CatalogPage() {
   };
 
   return (
-    <div className="p-4 min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white">
+    <div className="p-4 min-h-screen bg-gradient-to-br from-[#1e1f29] to-[#312c49] text-white"> {/* Updated background gradient */}
       <div className="flex justify-end mb-4">
         <input
           type="text"
