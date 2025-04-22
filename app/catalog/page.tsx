@@ -4,7 +4,7 @@ import { useState } from 'react';
 
 export default function CatalogPage() {
   const [searchTerm, setSearchTerm] = useState('');
-  const [detailMessage, setDetailMessage] = useState('');
+  const [detailMessage, setDetailMessage] = useState<{ name: string; price: number; description: string; image: string } | null>(null);
 
   const products = [
     { id: 'P1', name: 'Headset Gaming 1x', price: 400000, image: '/products/headset 1.jpg', description: 'Headset gaming berkualitas' },
@@ -28,8 +28,8 @@ export default function CatalogPage() {
     product.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleDetailClick = (product: { name: string; price: number; description: string }) => {
-    setDetailMessage(`${product.name} merupakan ${product.description} dengan harga Rp ${product.price.toLocaleString('id-ID')}`);
+  const handleDetailClick = (product: { name: string; price: number; description: string; image: string }) => {
+    setDetailMessage(product); // Update to include image data
   };
 
   return (
@@ -73,11 +73,18 @@ export default function CatalogPage() {
 
       {detailMessage && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="p-6 min-h-screen bg-gradient-to-b from-[#1e1f29] to-[#312c49] text-white">
-            <p className="whitespace-pre-line mb-6">{detailMessage}</p>
+          <div className="p-4 w-1/3 bg-gradient-to-b from-[#1e1f29] to-[#312c49] text-white rounded-xl shadow-xl">
+            <div className="w-full h-40 flex items-center justify-center mb-4">
+              <img
+                src={detailMessage.image}
+                alt={detailMessage.name}
+                className="object-contain max-h-full rounded"
+              />
+            </div>
+            <p className="whitespace-pre-line text-sm mb-6">{detailMessage.name} merupakan {detailMessage.description} dengan harga Rp {detailMessage.price.toLocaleString('id-ID')}</p>
             <div className="flex justify-center">
               <button
-                onClick={() => setDetailMessage('')}
+                onClick={() => setDetailMessage(null)}
                 className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
               >
                 Tutup
