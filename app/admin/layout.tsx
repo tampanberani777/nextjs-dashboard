@@ -7,7 +7,7 @@ export const metadata = {
 export default function AdminLayout({
   children,
 }: {
-  children: React.ReactNode aaa
+  children: React.ReactNode
 }) {
   return (
     <div className="bg-gradient-to-r from-gray-900 to-gray-800 text-gray-100 min-h-screen">
