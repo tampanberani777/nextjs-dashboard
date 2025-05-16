@@ -10,23 +10,23 @@ import { useRouter } from 'next/navigation'
 // const supabase = createClient(supabaseUrl, supabaseKey)
 
 interface Product {
-  id: string
-  name: string
-  price: number
-  image: string
-  description: string
+  id_produk_produk: string
+  nama_produk: string
+  harga: number
+  foto: string
+  deskripsi: string
   created_at: string
 }
 
 interface Transaction {
-  id: string
+  id_produk: string
   date: string
   customer: string
   items: {
-    productId: string
-    productName: string
+    productid_produk: string
+    nama_produk: string
     quantity: number
-    price: number
+    harga: number
   }[]
   total: number
   status: 'pending' | 'completed' | 'cancelled'
@@ -89,11 +89,11 @@ export default function AdminPage() {
   const [transactionSearch, setTransactionSearch] = useState('')
 
   const filteredProducts = products.filter((p) =>
-    p.name.toLowerCase().includes(searchQuery.toLowerCase())
+    p.nama_produk.toLowerCase().includes(searchQuery.toLowerCase())
   )
 
   const filteredTransactions = transactions.filter(t =>
-    t.id.toLowerCase().includes(transactionSearch.toLowerCase()) ||
+    t.id_produk.toLowerCase().includes(transactionSearch.toLowerCase()) ||
     t.customer.toLowerCase().includes(transactionSearch.toLowerCase()) ||
     t.status.toLowerCase().includes(transactionSearch.toLowerCase())
   )
@@ -116,26 +116,26 @@ export default function AdminPage() {
         const { data, error } = await supabase
           .from('products')
           .update({
-            name: newProduct.name,
-            price: newProduct.price,
-            image: newProduct.image,
-            description: newProduct.description,
+            nama_produk: newProduct.nama_produk,
+            harga: newProduct.harga,
+            foto: newProduct.foto,
+            description: newProduct.deskripsi,
           })
-          .eq('id', editingProduct.id)
+          .eq('id', editing.id_produk)
           .select()
 
         if (error) throw error
-        setProducts(products.map(p => p.id === editingProduct.id ? data![0] : p))
+        setProducts(products.map(p => p.id_produk === editing.id_produk ? data![0] : p))
       } else {
         // Add new product
         const { data, error } = await supabase
           .from('products')
           .insert([{
-            id: newProduct.id,
-            name: newProduct.name,
-            price: newProduct.price,
-            image: newProduct.image,
-            description: newProduct.description,
+            id: newProduct.id_produk,
+            name: newProduct.nama_produk,
+            harga: newProduct.harga,
+            foto: newProduct.foto,
+            description: newProduct.deskripsi,
             // created_at otomatis oleh DB, jangan diset manual
           }])
           .select()
@@ -164,7 +164,7 @@ export default function AdminPage() {
         .eq('id', id)
 
       if (error) throw error
-      setProducts(products.filter(p => p.id !== id))
+      setProducts(products.filter(p => p.id_produk !== id))
     } catch (error) {
       console.error('Error deleting product:', error)
       alert('Error deleting product')
@@ -175,13 +175,13 @@ export default function AdminPage() {
 
   const handleShowDetail = (product: Product) => {
     alert(
-      `Detail Produk:\n\nNama: ${product.name}\nHarga: Rp ${product.price.toLocaleString('id-ID')}\nDeskripsi: ${product.description}`
+      `Detail Produk:\n\nNama: ${nama_produk}\nHarga: Rp ${product.harga.toLocaleString('id-ID')}\nDeskripsi: ${product.deskripsi}`
     )
   } 
 
   const handleShowTransactionDetail = (transaction: Transaction) => {
     const itemsList = transaction.items.map(item => 
-      `${item.productName} (${item.quantity} x Rp ${item.price.toLocaleString('id-ID')})`
+      `${item.nama_produk} (${item.quantity} x Rp ${item.harga.toLocaleString('id-ID')})`
     ).join('\n')
     
     alert(
@@ -199,7 +199,7 @@ export default function AdminPage() {
         .select()
 
       if (error) throw error
-      setTransactions(transactions.map(t => t.id === id ? data![0] : t))
+      setTransactions(transactions.map(t => t.id_produk === id ? data![0] : t))
     } catch (error) {
       console.error('Error updating transaction:', error)
       alert('Error updating transaction status')
@@ -281,16 +281,16 @@ export default function AdminPage() {
                 </thead>
                 <tbody>
                   {filteredProducts.map((product) => (
-                    <tr key={product.id} className="border-b border-gray-700">
-                      <td className="px-4 py-2">{product.id}</td>
-                      <td className="px-4 py-2">{product.name}</td>
+                    <tr key={id_produk} className="border-b border-gray-700">
+                      <td className="px-4 py-2">{id_produk}</td>
+                      <td className="px-4 py-2">{nama_produk}</td>
                       <td className="px-4 py-2">
-                        Rp {product.price.toLocaleString('id-ID')}
+                        Rp {product.harga.toLocaleString('id-ID')}
                       </td>
                       <td className="px-4 py-2">
                         <img
-                          src={product.image}
-                          alt={product.name}
+                          src={product.foto}
+                          alt={nama_produk}
                           className="w-12 h-12 object-cover rounded"
                         />
                       </td>
@@ -308,7 +308,7 @@ export default function AdminPage() {
                           Update
                         </button>
                         <button
-                          onClick={() => handleDeleteProduct(product.id)}
+                          onClick={() => handleDeleteProduct(id_produk)}
                           className="bg-red-600 hover:bg-red-700 px-2 py-1 rounded"
                         >
                           Hapus
@@ -412,28 +412,28 @@ interface ProductModalProps {
 }
 
 function ProductModal({ product, onClose, onSubmit }: ProductModalProps) {
-  const [id, setId] = useState(product?.id || '')
-  const [name, setName] = useState(product?.name || '')
-  const [price, setPrice] = useState(product?.price.toString() || '0')
-  const [image, setImage] = useState(product?.image || '')
-  const [description, setDescription] = useState(product?.description || '')
+  const [id, setId] = useState(product?.id_produk || '')
+  const [name, setName] = useState(product?.nama_produk || '')
+  const [harga, setharga] = useState(product?.harga.toString() || '0')
+  const [foto, setfoto] = useState(product?.foto || '')
+  const [description, setDescription] = useState(product?.deskripsi|| '')
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!id || !name || !price || !image) {
+    if (!id || !name || !harga || !foto) {
       alert('Isi semua field yang wajib!')
       return
     }
-    const priceNumber = parseInt(price)
-    if (isNaN(priceNumber) || priceNumber < 0) {
+    const hargaNumber = parseInt(harga)
+    if (isNaN(hargaNumber) || hargaNumber < 0) {
       alert('Harga harus berupa angka positif')
       return
     }
     onSubmit({
-      id,
+      id_,
       name,
-      price: priceNumber,
-      image,
+      harga: hargaNumber,
+      foto,
       description,
       created_at: product?.created_at || new Date().toISOString(),
     })
@@ -445,12 +445,12 @@ function ProductModal({ product, onClose, onSubmit }: ProductModalProps) {
         <h2 className="text-xl mb-4">{product ? 'Update Produk' : 'Tambah Produk'}</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block mb-1">ID Barang</label>
+            <label className="block mb-1">id_produk Barang</label>
             <input
               type="text"
               className="w-full p-2 rounded bg-gray-800 border border-gray-700 text-gray-100"
-              value={id}
-              onChange={e => setId(e.target.value)}
+              value={id_produk}
+              onChange={e => setid_produk(e.target.value)}
               disabled={!!product}
               required
             />
@@ -470,8 +470,8 @@ function ProductModal({ product, onClose, onSubmit }: ProductModalProps) {
             <input
               type="number"
               className="w-full p-2 rounded bg-gray-800 border border-gray-700 text-gray-100"
-              value={price}
-              onChange={e => setPrice(e.target.value)}
+              value={harga}
+              onChange={e => setharga(e.target.value)}
               min={0}
               required
             />
@@ -481,8 +481,8 @@ function ProductModal({ product, onClose, onSubmit }: ProductModalProps) {
             <input
               type="text"
               className="w-full p-2 rounded bg-gray-800 border border-gray-700 text-gray-100"
-              value={image}
-              onChange={e => setImage(e.target.value)}
+              value={foto}
+              onChange={e => setfoto(e.target.value)}
               required
             />
           </div>
