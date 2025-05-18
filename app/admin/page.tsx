@@ -194,7 +194,7 @@ export default function AdminPage() {
       setLoading(true)
       const { data, error } = await supabase
         .from('transactions')
-        .update({ status: newStatus })a
+        .update({ status: newStatus })
         .eq('id', id)
         .select()
 
