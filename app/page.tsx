@@ -1,15 +1,19 @@
-'use client';
+import { sql } from '@/app/lib/data'
+import Image from 'next/image'
+import Link from 'next/link'
+import { UserCircleIcon } from '@heroicons/react/24/outline'
+import { FaInstagram, FaFacebook, FaWhatsapp } from 'react-icons/fa'
+import AcmeLogo from '@/app/ui/logorangga'
 
-import AcmeLogo from '@/app/ui/logorangga';
-import Link from 'next/link';
-import Image from 'next/image';
-import { usePathname } from 'next/navigation';
-import { UserCircleIcon } from '@heroicons/react/24/outline';
-import { FaInstagram, FaFacebook, FaWhatsapp } from 'react-icons/fa';
+interface Produk {
+  id_produk: string
+  nama_produk: string
+  harga: number
+  foto: string
+  deskripsi: string
+}
 
-export default function CatalogPage() {
-  const pathname = usePathname();
-
+export default async function CatalogPage() {
   const navLinks = [
     { href: '/', label: 'Home' },
     { href: '/catalog', label: 'Catalog' },
@@ -17,23 +21,12 @@ export default function CatalogPage() {
     { href: '/testimoni', label: 'Testimoni' },
   ];
 
-  const products = [
-    { name: 'Headset Gaming 1x', price: 'Rp 400.000', image: '/products/headset 1.jpg' },
-    { name: 'Headset Gaming 2y', price: 'Rp 500.000', image: '/products/headset 2.jpg' },
-    { name: 'Headset Wireless 2r', price: 'Rp 1.100.000', image: '/products/headset 3.jpg' },
-    { name: 'Xbox Series X 1TB', price: 'Rp 7.000.000', image: '/products/xbox x.jpg' },
-    { name: 'Sony Playstation 5', price: 'Rp 8.500.000', image: '/products/ps5.jpg' },
-    { name: 'Xbox Series S 512GB', price: 'Rp 5.700.000', image: '/products/xbox s.jpg' },
-    { name: 'Virtual Reality', price: 'Rp 5.000.000', image: '/products/vr.jpg' },
-    { name: 'Nitendo Switch', price: 'Rp 4.000.000', image: '/products/nitendo.jpg' },
-    { name: 'Controller PS5', price: 'Rp 550.000', image: '/products/controller 1.jpg' },
-    { name: 'Controller PS4', price: 'Rp 480.000', image: '/products/controller 2.jpg' },
-    { name: 'Keyboard Blue Switch', price: 'Rp 300.000', image: '/products/keyboard1.jpg' },
-    { name: 'Keyboard Red Switch', price: 'Rp 224.000', image: '/products/keyboard 2.jpg' },
-    { name: 'Mouse Wireless Lgi', price: 'Rp 1.100.000', image: '/products/mouse 1.jpg' },
-    { name: 'Mouse', price: 'Rp 100.000', image: '/products/mouse 2.jpg' },
-    { name: 'Mouse Wireless', price: 'Rp 300.000', image: '/products/mouse 3.jpg' },
-  ];
+  // Ambil data produk dari database Neon
+  const products = await sql<Produk[]>`
+    SELECT id_produk, nama_produk, harga, foto, deskripsi
+    FROM produk
+    ORDER BY harga ASC
+  `;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#1e1f29] to-[#312c49] text-white flex flex-col">
@@ -45,9 +38,7 @@ export default function CatalogPage() {
             <Link
               key={link.href}
               href={link.href}
-              className={`hover:text-red-500 transition-colors ${
-                pathname === link.href ? 'text-red-500 font-semibold' : ''
-              }`}
+              className="hover:text-red-500 transition-colors"
             >
               {link.label}
             </Link>
@@ -60,21 +51,26 @@ export default function CatalogPage() {
 
       <main className="p-4 flex-1">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-          {products.map((product, idx) => (
+          {products.length === 0 && (
+            <div className="col-span-full text-center text-gray-500">
+              Tidak ada produk tersedia.
+            </div>
+          )}
+          {products.map((product: Produk) => (
             <div
-              key={idx}
+              key={product.id_produk}
               className="bg-black bg-opacity-50 rounded-lg p-4 shadow-xl flex flex-col items-center"
             >
               <div className="relative w-full h-32 mb-4">
                 <Image
-                  src={product.image}
-                  alt={product.name}
+                  src={product.foto}
+                  alt={product.nama_produk}
                   fill
                   className="object-contain rounded"
                 />
               </div>
-              <p className="font-semibold text-center">{product.name}</p>
-              <p className="text-sm opacity-75">{product.price}</p>
+              <p className="font-semibold text-center">{product.nama_produk}</p>
+              <p className="text-sm opacity-75">Rp {product.harga.toLocaleString('id-ID')}</p>
             </div>
           ))}
         </div>
