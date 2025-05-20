@@ -7,7 +7,7 @@ export default function RegisterLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex"> 
       <div className="w-full md:w-1/2 flex items-center justify-center bg-gradient-to-br from-[#1e1f29] to-[#312c49] text-white">
         {children}
       </div>
