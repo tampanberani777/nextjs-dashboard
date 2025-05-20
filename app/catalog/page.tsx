@@ -9,15 +9,12 @@ interface Produk {
   deskripsi: string
 }
 
-
 export default async function CatalogPage() {
  const products = await sql<Produk[]>`
   SELECT id_produk, nama_produk, harga, foto, deskripsi
   FROM produk
   ORDER BY harga ASC
 `
-
-
   return (
     <div className="min-h-screen bg-gray-100 text-gray-900 p-8">
       <h1 className="text-3xl font-bold mb-8 text-center">Katalog Produk</h1>
@@ -53,3 +50,4 @@ export default async function CatalogPage() {
     </div>
   )
 }
+
