@@ -9,7 +9,7 @@ export default async function ProdukPage() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold mb-6">Katalog Produk </h1>
+      <h1 className="text-3xl font-bold mb-6">Katalog Produk</h1>
       <div className="overflow-x-auto bg-white rounded shadow">
         <table className="min-w-full divide-y divide-gray-200 text-gray-900">
           <thead className="bg-gray-50">
