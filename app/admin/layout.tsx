@@ -1,25 +1,29 @@
 import React from 'react'
+import Link from 'next/link'
 
 export const metadata = {
-  title: 'Admin Dashboard',
+  title: 'Admin',
 }
 
-export default function AdminLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="bg-gradient-to-r from-gray-900 to-gray-800 text-gray-100 min-h-screen">
-      <nav className="bg-gray-900 border-b border-gray-700 p-4">
-        <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <div className="text-xl font-bold">Admin Dashboard</div>
+    <div className="flex min-h-screen bg-gradient-to-r from-gray-900 to-gray-800 text-gray-100">
+      {/* Sidebar */}
+      <aside className="w-64 bg-gray-900 flex flex-col justify-between min-h-screen">
+        <div>
+          <div className="p-6 text-2xl font-bold border-b border-gray-700">Admin Dashboard</div>
+          <nav className="flex flex-col p-6 space-y-4">
+            <Link href="/admin" className="px-4 py-2 rounded hover:bg-gray-700 transition">Preview</Link>
+            <Link href="/admin/produk" className="px-4 py-2 rounded hover:bg-gray-700 transition">Produk</Link>
+            <Link href="/admin/transaksi" className="px-4 py-2 rounded hover:bg-gray-700 transition">Transaksi</Link>
+          </nav>
         </div>
-      </nav>
-
-      <main className="max-w-7xl mx-auto p-4">
-        {children}
-      </main>
+        <div className="p-6">
+          <Link href="/" className="block w-full text-center bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded transition">Kembali ke Halaman Utama</Link>
+        </div>
+      </aside>
+      {/* Main Content */}
+      <main className="flex-1 p-8 overflow-auto">{children}</main>
     </div>
   )
 }

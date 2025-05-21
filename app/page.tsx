@@ -1,4 +1,4 @@
-import { sql } from '@/app/lib/data'
+import { fetchFilteredInvoices } from '@/app/lib/data';
 import Image from 'next/image'
 import Link from 'next/link'
 import { UserCircleIcon } from '@heroicons/react/24/outline'

@@ -1,4 +1,5 @@
 // app/lib/data.ts
+
 export interface Invoice {
   id: string;
   name: string;
