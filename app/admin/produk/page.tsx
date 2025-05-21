@@ -1,5 +1,4 @@
 import { fetchProducts, Product } from '@/app/lib/fetchData';
-import { useState } from 'react';
 
 function formatRupiah(num: number) {
   return "Rp " + num.toLocaleString("id-ID");
@@ -8,20 +7,18 @@ function formatRupiah(num: number) {
 export default async function ProdukPage() {
   const products: Product[] = await fetchProducts();
 
-  // Jika ingin search dan CRUD, pindahkan ke client component atau gunakan server actions
-
   return (
     <div>
-      <h1 className="text-3xl font-bold mb-6">Katalog Produk</h1>
+      <h1 className="text-3xl font-bold mb-6">Katalog Produk (produk2)</h1>
       <div className="overflow-x-auto bg-white rounded shadow">
         <table className="min-w-full divide-y divide-gray-200 text-gray-900">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID Produk</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nama Produk</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Harga</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Gambar</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Deskripsi</th>
+              <th className="px-6 py-3">ID Produk</th>
+              <th className="px-6 py-3">Nama Produk</th>
+              <th className="px-6 py-3">Harga</th>
+              <th className="px-6 py-3">Gambar</th>
+              <th className="px-6 py-3">Deskripsi</th>
             </tr>
           </thead>
           <tbody>
