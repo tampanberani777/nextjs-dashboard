@@ -1,37 +1,14 @@
-'use client'
 import Link from "next/link"
-
-const products = [
-  { id_produk: "P1", nama_produk: "Headset Gaming 1x", harga: 400000, foto: "/products/headset 1.jpg", deskripsi: "Headset gaming berkualitas..." },
-  { id_produk: "P10", nama_produk: "Controller PS4", harga: 480000, foto: "/products/controller 2.jpg", deskripsi: "Controller PS4 ergonomis..." },
-  { id_produk: "P11", nama_produk: "Keyboard Blue Switch", harga: 300000, foto: "/products/keyboard1.jpg", deskripsi: "Keyboard tactile dan clicky..." },
-  { id_produk: "P12", nama_produk: "Keyboard Red Switch", harga: 224000, foto: "/products/keyboard 2.jpg", deskripsi: "Keyboard linear dan smooth..." },
-  { id_produk: "P13", nama_produk: "Mouse Wireless Lgi", harga: 110000, foto: "/products/mouse 1.jpg", deskripsi: "Mouse wireless presisi..." },
-  { id_produk: "P14", nama_produk: "Mouse", harga: 100000, foto: "/products/mouse 2.jpg", deskripsi: "Mouse basic untuk kebutuhan umum." },
-  { id_produk: "P15", nama_produk: "Mouse Wireless", harga: 300000, foto: "/products/mouse 3.jpg", deskripsi: "Mouse wireless hemat baterai." },
-  { id_produk: "P2", nama_produk: "Headset Gaming 2y", harga: 500000, foto: "/products/headset 2.jpg", deskripsi: "Headset dengan suara jernih." },
-  { id_produk: "P3", nama_produk: "Headset Wireless 2r", harga: 1100000, foto: "/products/headset 3.jpg", deskripsi: "Headset wireless dengan bass mantap." },
-  { id_produk: "P4", nama_produk: "Xbox xr", harga: 7000000, foto: "/products/xbox x.jpg", deskripsi: "Konsol next-gen dengan grafis tinggi." },
-  { id_produk: "P5", nama_produk: "Sony Playstation 5", harga: 8500000, foto: "/products/ps5.jpg", deskripsi: "Konsol PS5 dengan performa tinggi." },
-  { id_produk: "P6", nama_produk: "Xbox Series S 512GB", harga: 5700000, foto: "/products/xbox s.jpg", deskripsi: "Xbox ringkas untuk gaming modern." },
-  { id_produk: "P7", nama_produk: "Virtual Reality", harga: 5000000, foto: "/products/vr.jpg", deskripsi: "Headset VR immersive dengan tracking akurat." },
-  { id_produk: "P8", nama_produk: "Nitendo Switch", harga: 4000000, foto: "/products/nitendo.jpg", deskripsi: "Konsol portable dari Nintendo." },
-  { id_produk: "P9", nama_produk: "Controller PS5", harga: 550000, foto: "/products/controller 1.jpg", deskripsi: "Controller original PS5." },
-]
-
-const transactions = [
-  { id: "T001", product_id: "P1", buyer: "John tol", date: "2025-05-20", total: 400000 },
-  { id: "T002", product_id: "P3", buyer: "Jane Smith", date: "2025-05-21", total: 1100000 },
-  { id: "T003", product_id: "P1", buyer: "Alice", date: "2025-05-22", total: 400000 },
-  { id: "T004", product_id: "P2", buyer: "Bob", date: "2025-05-23", total: 500000 },
-  { id: "T005", product_id: "P1", buyer: "Charlie", date: "2025-05-24", total: 400000 },
-]
+import { fetchProducts, fetchTransactions } from "@/app/lib/fetchData"
 
 function formatRupiah(num: number) {
   return "Rp " + num.toLocaleString("id-ID")
 }
 
-export default function AdminDashboard() {
+export default async function AdminDashboard() {
+  const products = await fetchProducts(5)
+  const transactions = await fetchTransactions(5)
+
   const totalProducts = products.length
   const totalRevenue = transactions.reduce((sum, t) => sum + t.total, 0)
   const productCount: Record<string, number> = {}
@@ -83,7 +60,7 @@ export default function AdminDashboard() {
             </tr>
           </thead>
           <tbody>
-            {products.slice(0, 5).map(p => (
+            {products.map(p => (
               <tr key={p.id_produk}>
                 <td className="px-6 py-4">{p.id_produk}</td>
                 <td className="px-6 py-4">{p.nama_produk}</td>
@@ -113,7 +90,7 @@ export default function AdminDashboard() {
             </tr>
           </thead>
           <tbody>
-            {transactions.slice(0, 5).map(t => (
+            {transactions.map(t => (
               <tr key={t.id}>
                 <td className="px-6 py-4">{t.id}</td>
                 <td className="px-6 py-4">{t.product_id}</td>
