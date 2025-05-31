@@ -139,7 +139,7 @@ export default function TransaksiTable({ transaksi }: { transaksi: any[] }) {
                     <td className="px-6 py-4">{t.id_transaksi}</td>
                     <td className="px-6 py-4">{t.id_produk}</td>
                     <td className="px-6 py-4">{t.nama_pembeli}</td>
-                    <td className="px-6 py-4">{t.tanggal_transaksi}</td>
+                    <td>{t.tanggal_transaksi ? new Date(t.tanggal_transaksi).toLocaleDateString('id-ID') : ''}</td>
                     <td className="px-6 py-4">{formatRupiah(t.total_harga)}</td>
                     <td className="px-6 py-4 flex gap-2">
                       <button className="bg-yellow-400 px-2 py-1 rounded" onClick={() => handleEdit(t)}>
