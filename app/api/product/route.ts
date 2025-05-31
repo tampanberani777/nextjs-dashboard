@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { sql } from '../../../lib/neondb';
+import { sql } from '../../lib/neondb';
 
 // Ambil semua produk dari database
 export async function GET() {

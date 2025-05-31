@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { sql } from '../../../../lib/neondb';
+import { sql } from '../../../lib/neondb';
 
 // Update produk (PUT)
 export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
