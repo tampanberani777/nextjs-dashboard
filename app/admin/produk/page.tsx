@@ -70,12 +70,25 @@ export default function ProdukPage() {
   };
 
   // Create
-  const handleAdd = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!form.id_produk || !form.nama_produk || !form.harga || !form.foto || !form.deskripsi) return;
+  const handleAdd = async (e: React.FormEvent) => {
+  e.preventDefault();
+  if (!form.id_produk || !form.nama_produk || !form.harga || !form.foto || !form.deskripsi) return;
+
+  const res = await fetch('/api/product', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ...form, harga: Number(form.harga) }),
+  });
+
+  if (res.ok) {
+    // Setelah berhasil, reload data dari database (bisa fetch ulang dari API)
+    // atau tambahkan langsung ke state jika ingin cepat
     setProducts([...products, { ...form, harga: Number(form.harga) }]);
     setForm({ id_produk: '', nama_produk: '', harga: '', foto: '', deskripsi: '' });
-  };
+  } else {
+    alert('Gagal menambah produk');
+  }
+};
 
   // Edit
   const handleEdit = (p: any) => {
