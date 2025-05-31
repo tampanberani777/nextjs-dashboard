@@ -26,7 +26,7 @@ export default function TransaksiTable({ transaksi }: { transaksi: any[] }) {
   // Tambah transaksi
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
-    await fetch('/admin/api/transaksi', {
+    await fetch('/api/transaksi', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ...addForm, total_harga: Number(addForm.total_harga) }),
@@ -50,7 +50,7 @@ export default function TransaksiTable({ transaksi }: { transaksi: any[] }) {
   // Simpan edit
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
-    await fetch(`/admin/api/transaksi/${editId}`, {
+    await fetch(`/api/transaksi/${editId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ...editForm, total_harga: Number(editForm.total_harga) }),
@@ -62,7 +62,7 @@ export default function TransaksiTable({ transaksi }: { transaksi: any[] }) {
   // Hapus transaksi
   const handleDelete = async (id: string) => {
     if (!confirm('Yakin ingin menghapus transaksi ini?')) return;
-    await fetch(`/admin/api/transaksi/${id}`, { method: 'DELETE' });
+    await fetch(`/api/transaksi/${id}`, { method: 'DELETE' });
     window.location.reload();
   };
 

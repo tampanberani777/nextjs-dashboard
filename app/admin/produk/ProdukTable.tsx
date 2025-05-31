@@ -26,7 +26,7 @@ export default function ProdukTable({ products }: { products: any[] }) {
   // Tambah produk baru
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
-    await fetch('/admin/api/product', {
+    await fetch('/api/product', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ...addForm, harga: Number(addForm.harga) }),
@@ -50,7 +50,7 @@ export default function ProdukTable({ products }: { products: any[] }) {
   // Simpan edit ke database
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
-    await fetch(`/admin/api/product/${editId}`, {
+    await fetch(`/api/product/${editId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ...editForm, harga: Number(editForm.harga) }),
@@ -62,7 +62,7 @@ export default function ProdukTable({ products }: { products: any[] }) {
   // Hapus produk
   const handleDelete = async (id: string) => {
     if (!confirm('Yakin ingin menghapus produk ini?')) return;
-    await fetch(`/admin/api/product/${id}`, { method: 'DELETE' });
+    await fetch(`/api/product/${id}`, { method: 'DELETE' });
     window.location.reload();
   };
 
