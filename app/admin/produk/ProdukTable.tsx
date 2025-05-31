@@ -14,8 +14,29 @@ export default function ProdukTable({ products }: { products: any[] }) {
     foto: '',
     deskripsi: '',
   });
+  const [showAdd, setShowAdd] = useState(false);
+  const [addForm, setAddForm] = useState({
+    id_produk: '',
+    nama_produk: '',
+    harga: '',
+    foto: '',
+    deskripsi: '',
+  });
 
-  // Mulai edit
+  // Tambah produk baru
+  const handleAdd = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await fetch('/admin/api/product', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...addForm, harga: Number(addForm.harga) }),
+    });
+    setAddForm({ id_produk: '', nama_produk: '', harga: '', foto: '', deskripsi: '' });
+    setShowAdd(false);
+    window.location.reload();
+  };
+
+  // Edit produk
   const handleEdit = (p: any) => {
     setEditId(p.id_produk);
     setEditForm({
@@ -45,100 +66,157 @@ export default function ProdukTable({ products }: { products: any[] }) {
     window.location.reload();
   };
 
-  const handleEditChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setEditForm({ ...editForm, [e.target.name]: e.target.value });
-  };
-
   return (
-    <div className="overflow-x-auto bg-white rounded shadow">
-      <table className="min-w-full divide-y divide-gray-200 text-gray-900">
-        <thead className="bg-gray-50">
-          <tr>
-            <th className="px-6 py-3">ID Produk</th>
-            <th className="px-6 py-3">Nama Produk</th>
-            <th className="px-6 py-3">Harga</th>
-            <th className="px-6 py-3">Gambar</th>
-            <th className="px-6 py-3">Deskripsi</th>
-            <th className="px-6 py-3">Aksi</th>
-          </tr>
-        </thead>
-        <tbody>
-          {products.length === 0 ? (
+    <div>
+      {/* Tombol Tambah Produk */}
+      <button
+        className="mb-4 bg-blue-600 text-white px-4 py-2 rounded"
+        onClick={() => setShowAdd(!showAdd)}
+      >
+        {showAdd ? 'Tutup Form Tambah' : 'Tambah Produk'}
+      </button>
+
+      {/* Form Tambah Produk */}
+      {showAdd && (
+        <form onSubmit={handleAdd} className="mb-4 flex flex-wrap gap-2 items-center bg-gray-50 p-4 rounded">
+          <input
+            className="border px-2 py-1"
+            name="id_produk"
+            placeholder="ID Produk"
+            value={addForm.id_produk}
+            onChange={e => setAddForm({ ...addForm, id_produk: e.target.value })}
+            required
+          />
+          <input
+            className="border px-2 py-1"
+            name="nama_produk"
+            placeholder="Nama Produk"
+            value={addForm.nama_produk}
+            onChange={e => setAddForm({ ...addForm, nama_produk: e.target.value })}
+            required
+          />
+          <input
+            className="border px-2 py-1"
+            name="harga"
+            placeholder="Harga"
+            type="number"
+            value={addForm.harga}
+            onChange={e => setAddForm({ ...addForm, harga: e.target.value })}
+            required
+          />
+          <input
+            className="border px-2 py-1"
+            name="foto"
+            placeholder="Link Gambar"
+            value={addForm.foto}
+            onChange={e => setAddForm({ ...addForm, foto: e.target.value })}
+            required
+          />
+          <input
+            className="border px-2 py-1"
+            name="deskripsi"
+            placeholder="Deskripsi"
+            value={addForm.deskripsi}
+            onChange={e => setAddForm({ ...addForm, deskripsi: e.target.value })}
+            required
+          />
+          <button type="submit" className="bg-green-600 text-white px-4 py-1 rounded">
+            Simpan
+          </button>
+        </form>
+      )}
+
+      {/* Tabel Produk */}
+      <div className="overflow-x-auto bg-white rounded shadow">
+        <table className="min-w-full divide-y divide-gray-200 text-gray-900">
+          <thead className="bg-gray-50">
             <tr>
-              <td colSpan={6} className="text-center py-4 text-gray-400">
-                Tidak ada produk ditemukan.
-              </td>
+              <th className="px-6 py-3">ID Produk</th>
+              <th className="px-6 py-3">Nama Produk</th>
+              <th className="px-6 py-3">Harga</th>
+              <th className="px-6 py-3">Gambar</th>
+              <th className="px-6 py-3">Deskripsi</th>
+              <th className="px-6 py-3">Aksi</th>
             </tr>
-          ) : (
-            products.map((p: any) =>
-              editId === p.id_produk ? (
-                <tr key={p.id_produk} className="bg-yellow-50">
-                  <td className="px-6 py-4">{p.id_produk}</td>
-                  <td className="px-6 py-4">
-                    <input
-                      className="border px-2 py-1 w-full"
-                      name="nama_produk"
-                      value={editForm.nama_produk}
-                      onChange={handleEditChange}
-                    />
-                  </td>
-                  <td className="px-6 py-4">
-                    <input
-                      className="border px-2 py-1 w-full"
-                      name="harga"
-                      type="number"
-                      value={editForm.harga}
-                      onChange={handleEditChange}
-                    />
-                  </td>
-                  <td className="px-6 py-4">
-                    <input
-                      className="border px-2 py-1 w-full"
-                      name="foto"
-                      value={editForm.foto}
-                      onChange={handleEditChange}
-                    />
-                  </td>
-                  <td className="px-6 py-4">
-                    <textarea
-                      className="border px-2 py-1 w-full"
-                      name="deskripsi"
-                      value={editForm.deskripsi}
-                      onChange={handleEditChange}
-                    />
-                  </td>
-                  <td className="px-6 py-4 flex gap-2">
-                    <button className="bg-blue-600 text-white px-2 py-1 rounded" onClick={handleUpdate}>
-                      Simpan
-                    </button>
-                    <button className="bg-gray-400 text-white px-2 py-1 rounded" onClick={() => setEditId(null)}>
-                      Batal
-                    </button>
-                  </td>
-                </tr>
-              ) : (
-                <tr key={p.id_produk}>
-                  <td className="px-6 py-4">{p.id_produk}</td>
-                  <td className="px-6 py-4">{p.nama_produk}</td>
-                  <td className="px-6 py-4">{formatRupiah(p.harga)}</td>
-                  <td className="px-6 py-4">
-                    <img src={p.foto} alt={p.nama_produk} className="w-16 h-16 object-cover rounded" />
-                  </td>
-                  <td className="px-6 py-4">{p.deskripsi}</td>
-                  <td className="px-6 py-4 flex gap-2">
-                    <button className="bg-yellow-400 px-2 py-1 rounded" onClick={() => handleEdit(p)}>
-                      Edit
-                    </button>
-                    <button className="bg-red-500 text-white px-2 py-1 rounded" onClick={() => handleDelete(p.id_produk)}>
-                      Hapus
-                    </button>
-                  </td>
-                </tr>
+          </thead>
+          <tbody>
+            {products.length === 0 ? (
+              <tr>
+                <td colSpan={6} className="text-center py-4 text-gray-400">
+                  Tidak ada produk ditemukan.
+                </td>
+              </tr>
+            ) : (
+              products.map((p: any) =>
+                editId === p.id_produk ? (
+                  <tr key={p.id_produk} className="bg-yellow-50">
+                    <td className="px-6 py-4">{p.id_produk}</td>
+                    <td className="px-6 py-4">
+                      <input
+                        className="border px-2 py-1 w-full"
+                        name="nama_produk"
+                        value={editForm.nama_produk}
+                        onChange={e => setEditForm({ ...editForm, nama_produk: e.target.value })}
+                      />
+                    </td>
+                    <td className="px-6 py-4">
+                      <input
+                        className="border px-2 py-1 w-full"
+                        name="harga"
+                        type="number"
+                        value={editForm.harga}
+                        onChange={e => setEditForm({ ...editForm, harga: e.target.value })}
+                      />
+                    </td>
+                    <td className="px-6 py-4">
+                      <input
+                        className="border px-2 py-1 w-full"
+                        name="foto"
+                        value={editForm.foto}
+                        onChange={e => setEditForm({ ...editForm, foto: e.target.value })}
+                      />
+                    </td>
+                    <td className="px-6 py-4">
+                      <input
+                        className="border px-2 py-1 w-full"
+                        name="deskripsi"
+                        value={editForm.deskripsi}
+                        onChange={e => setEditForm({ ...editForm, deskripsi: e.target.value })}
+                      />
+                    </td>
+                    <td className="px-6 py-4 flex gap-2">
+                      <button className="bg-blue-600 text-white px-2 py-1 rounded" onClick={handleUpdate}>
+                        Simpan
+                      </button>
+                      <button className="bg-gray-400 text-white px-2 py-1 rounded" onClick={() => setEditId(null)}>
+                        Batal
+                      </button>
+                    </td>
+                  </tr>
+                ) : (
+                  <tr key={p.id_produk}>
+                    <td className="px-6 py-4">{p.id_produk}</td>
+                    <td className="px-6 py-4">{p.nama_produk}</td>
+                    <td className="px-6 py-4">{formatRupiah(p.harga)}</td>
+                    <td className="px-6 py-4">
+                      <img src={p.foto} alt={p.nama_produk} className="w-16 h-16 object-cover rounded" />
+                    </td>
+                    <td className="px-6 py-4">{p.deskripsi}</td>
+                    <td className="px-6 py-4 flex gap-2">
+                      <button className="bg-yellow-400 px-2 py-1 rounded" onClick={() => handleEdit(p)}>
+                        Edit
+                      </button>
+                      <button className="bg-red-500 text-white px-2 py-1 rounded" onClick={() => handleDelete(p.id_produk)}>
+                        Hapus
+                      </button>
+                    </td>
+                  </tr>
+                )
               )
-            )
-          )}
-        </tbody>
-      </table>
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
