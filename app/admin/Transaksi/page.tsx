@@ -1,4 +1,3 @@
-// app/admin/transaksi/page.tsx
 import { sql } from '../../lib/neondb';
 import TransaksiTable from './TransaksiTable';
 
