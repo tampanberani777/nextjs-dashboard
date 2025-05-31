@@ -1,4 +1,3 @@
-// app/admin/api/transaksi/route.ts
 import { NextRequest } from 'next/server';
 import { sql } from '../../../../lib/neondb';
 
