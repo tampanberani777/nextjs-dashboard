@@ -1,6 +1,6 @@
 // app/admin/api/transaksi/route.ts
 import { NextRequest } from 'next/server';
-import { sql } from '../../../../../lib/neondb';
+import { sql } from '../../../../lib/neondb';
 
 export async function GET() {
   const result = await sql`

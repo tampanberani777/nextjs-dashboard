@@ -1,11 +1,12 @@
+// app/admin/transaksi/page.tsx
 import { sql } from '../../lib/neondb';
 import TransaksiTable from './TransaksiTable';
 
 export default async function TransaksiPage() {
   const transaksi = await sql`
-    SELECT id_transaksi, id_produk, nama_pembeli, tanggal_transaksi, total_harga
-    FROM transaksi
-    ORDER BY id_transaksi ASC
+    SELECT id as id_transaksi, product_id as id_produk, buyer as nama_pembeli, date as tanggal_transaksi, total as total_harga
+    FROM transactions
+    ORDER BY id ASC
   `;
   return (
     <div>
