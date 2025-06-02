@@ -3,6 +3,8 @@ import { sql } from '../../lib/neondb';
 
 export async function GET(request: NextRequest) {
   try {
+    console.log('API /api/produk dipanggil'); // Debug log
+    
     const { searchParams } = new URL(request.url);
     const q = searchParams.get('q');
 
@@ -25,6 +27,7 @@ export async function GET(request: NextRequest) {
       `;
     }
 
+    console.log('Data berhasil diambil:', result.length); // Debug log
     return NextResponse.json(result);
   } catch (error) {
     console.error('Database error:', error);
