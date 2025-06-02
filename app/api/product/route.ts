@@ -1,28 +1,50 @@
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { sql } from '../../lib/neondb';
 
-// Ambil semua produk dari database
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const result = await sql`SELECT * FROM produk ORDER BY id_produk ASC`;
-    return new Response(JSON.stringify(result), { status: 200 });
+    const { searchParams } = new URL(request.url);
+    const q = searchParams.get('q');
+
+    let result;
+    if (q) {
+      result = await sql`
+        SELECT id_produk, nama_produk, harga, foto, deskripsi
+        FROM produk
+        WHERE 
+          LOWER(nama_produk) LIKE LOWER('%' || ${q} || '%') OR
+          CAST(id_produk AS TEXT) LIKE '%' || ${q} || '%' OR
+          LOWER(deskripsi) LIKE LOWER('%' || ${q} || '%')
+        ORDER BY id_produk ASC
+      `;
+    } else {
+      result = await sql`
+        SELECT id_produk, nama_produk, harga, foto, deskripsi
+        FROM produk
+        ORDER BY id_produk ASC
+      `;
+    }
+
+    return NextResponse.json(result);
   } catch (error) {
-    return new Response(JSON.stringify({ error: 'Gagal mengambil produk', detail: error }), { status: 500 });
+    console.error('Database error:', error);
+    return NextResponse.json({ error: 'Gagal mengambil data produk' }, { status: 500 });
   }
 }
 
-// Tambah produk ke database
 export async function POST(request: NextRequest) {
-  const body = await request.json();
-  const { id_produk, nama_produk, harga, foto, deskripsi } = body;
-
   try {
+    const body = await request.json();
+    const { id_produk, nama_produk, harga, foto, deskripsi } = body;
+
     await sql`
       INSERT INTO produk (id_produk, nama_produk, harga, foto, deskripsi)
       VALUES (${id_produk}, ${nama_produk}, ${harga}, ${foto}, ${deskripsi})
     `;
-    return new Response(JSON.stringify({ message: 'Produk berhasil ditambahkan' }), { status: 201 });
+    
+    return NextResponse.json({ message: 'Produk berhasil ditambahkan' }, { status: 201 });
   } catch (error) {
-    return new Response(JSON.stringify({ error: 'Gagal menambah produk', detail: error }), { status: 500 });
+    console.error('Database error:', error);
+    return NextResponse.json({ error: 'Gagal menambah produk' }, { status: 500 });
   }
 }
