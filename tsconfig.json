@@ -30,6 +30,6 @@
     ".next/types/**/*.ts",
     "app/lib/placeholder-data.ts",
     "scripts/seed.js"
-, "app/api/product", "app/api/transaksi"  ],
+, "app/api/produk", "app/api/transaksi"  ],
   "exclude": ["node_modules"]
 }
