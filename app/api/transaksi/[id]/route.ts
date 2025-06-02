@@ -4,13 +4,12 @@ import { sql } from '../../../lib/neondb';
 export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const body = await request.json();
-    const { id_produk, nama_pembeli, tanggal_transaksi, total_harga } = body;
+    const { product_id, buyer, date, total } = body;
     
     await sql`
-      UPDATE transaksi
-      SET id_produk = ${id_produk}, nama_pembeli = ${nama_pembeli}, 
-          tanggal_transaksi = ${tanggal_transaksi}, total_harga = ${total_harga}
-      WHERE id_transaksi = ${params.id}
+      UPDATE transactions
+      SET product_id = ${product_id}, buyer = ${buyer}, date = ${date}, total = ${total}
+      WHERE id = ${params.id}
     `;
     
     return NextResponse.json({ message: 'Transaksi berhasil diupdate' });
@@ -22,7 +21,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 
 export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    await sql`DELETE FROM transaksi WHERE id_transaksi = ${params.id}`;
+    await sql`DELETE FROM transactions WHERE id = ${params.id}`;
     return NextResponse.json({ message: 'Transaksi berhasil dihapus' });
   } catch (error) {
     console.error('Database error:', error);

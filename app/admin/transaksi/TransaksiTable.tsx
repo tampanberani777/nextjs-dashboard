@@ -13,18 +13,18 @@ export default function TransaksiTable() {
   const [loading, setLoading] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState({
-    id_produk: '',
-    nama_pembeli: '',
-    tanggal_transaksi: '',
-    total_harga: '',
+    product_id: '',
+    buyer: '',
+    date: '',
+    total: '',
   });
   const [showAdd, setShowAdd] = useState(false);
   const [addForm, setAddForm] = useState({
-    id_transaksi: '',
-    id_produk: '',
-    nama_pembeli: '',
-    tanggal_transaksi: '',
-    total_harga: '',
+    id: '',
+    product_id: '',
+    buyer: '',
+    date: '',
+    total: '',
   });
 
   const fetchTransaksi = async (query = '') => {
@@ -32,23 +32,14 @@ export default function TransaksiTable() {
     try {
       const res = await fetch(`/api/transaksi${query ? `?q=${encodeURIComponent(query)}` : ''}`);
       const data = await res.json();
-      
-      console.log('Fetched data:', data); // Debug log
-      
-      // Handle different response formats
       if (Array.isArray(data)) {
         setTransaksi(data);
       } else if (data && Array.isArray(data.rows)) {
         setTransaksi(data.rows);
-      } else if (data && data.error) {
-        console.error('API Error:', data.error);
-        setTransaksi([]);
       } else {
-        console.error('Unexpected data format:', data);
         setTransaksi([]);
       }
     } catch (error) {
-      console.error('Fetch error:', error);
       setTransaksi([]);
     }
     setLoading(false);
@@ -62,9 +53,7 @@ export default function TransaksiTable() {
     const val = e.target.value;
     setSearch(val);
 
-    if (searchTimer) {
-      clearTimeout(searchTimer);
-    }
+    if (searchTimer) clearTimeout(searchTimer);
 
     const timer = setTimeout(() => {
       fetchTransaksi(val);
@@ -75,85 +64,57 @@ export default function TransaksiTable() {
 
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      const res = await fetch('/api/transaksi', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...addForm, total_harga: Number(addForm.total_harga) }),
-      });
-      
-      if (res.ok) {
-        setAddForm({ id_transaksi: '', id_produk: '', nama_pembeli: '', tanggal_transaksi: '', total_harga: '' });
-        setShowAdd(false);
-        fetchTransaksi(search);
-        alert('Transaksi berhasil ditambahkan');
-      } else {
-        const errorData = await res.json();
-        console.error('Add error:', errorData);
-        alert('Gagal menambah transaksi: ' + (errorData.error || 'Unknown error'));
-      }
-    } catch (error) {
-      console.error('Add error:', error);
+    const res = await fetch('/api/transaksi', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...addForm, total: Number(addForm.total) }),
+    });
+    if (res.ok) {
+      setAddForm({ id: '', product_id: '', buyer: '', date: '', total: '' });
+      setShowAdd(false);
+      fetchTransaksi(search);
+    } else {
       alert('Gagal menambah transaksi');
     }
   };
 
   const handleEdit = (t: any) => {
-    setEditId(t.id_transaksi);
+    setEditId(t.id);
     setEditForm({
-      id_produk: t.id_produk?.toString() || '',
-      nama_pembeli: t.nama_pembeli || '',
-      tanggal_transaksi: t.tanggal_transaksi ? t.tanggal_transaksi.split('T')[0] : '',
-      total_harga: t.total_harga?.toString() || '',
+      product_id: t.product_id,
+      buyer: t.buyer,
+      date: t.date ? t.date.split('T')[0] : '',
+      total: t.total?.toString() || '',
     });
   };
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      const res = await fetch(`/api/transaksi/${editId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...editForm, total_harga: Number(editForm.total_harga) }),
-      });
-      
-      if (res.ok) {
-        setEditId(null);
-        fetchTransaksi(search);
-        alert('Transaksi berhasil diupdate');
-      } else {
-        const errorData = await res.json();
-        console.error('Update error:', errorData);
-        alert('Gagal mengupdate transaksi: ' + (errorData.error || 'Unknown error'));
-      }
-    } catch (error) {
-      console.error('Update error:', error);
+    const res = await fetch(`/api/transaksi/${editId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...editForm, total: Number(editForm.total) }),
+    });
+    if (res.ok) {
+      setEditId(null);
+      fetchTransaksi(search);
+    } else {
       alert('Gagal mengupdate transaksi');
     }
   };
 
   const handleDelete = async (id: string) => {
     if (!confirm('Yakin ingin menghapus transaksi ini?')) return;
-    try {
-      const res = await fetch(`/api/transaksi/${id}`, { method: 'DELETE' });
-      
-      if (res.ok) {
-        fetchTransaksi(search);
-        alert('Transaksi berhasil dihapus');
-      } else {
-        const errorData = await res.json();
-        console.error('Delete error:', errorData);
-        alert('Gagal menghapus transaksi: ' + (errorData.error || 'Unknown error'));
-      }
-    } catch (error) {
-      console.error('Delete error:', error);
+    const res = await fetch(`/api/transaksi/${id}`, { method: 'DELETE' });
+    if (res.ok) {
+      fetchTransaksi(search);
+    } else {
       alert('Gagal menghapus transaksi');
     }
   };
 
   return (
     <div>
-      {/* Search */}
       <input
         type="text"
         placeholder="Cari transaksi..."
@@ -162,7 +123,6 @@ export default function TransaksiTable() {
         className="border px-2 py-1 mb-4 w-full max-w-sm text-black"
       />
 
-      {/* Tombol Tambah */}
       <button
         className="mb-4 bg-blue-600 text-white px-4 py-2 rounded"
         onClick={() => setShowAdd(!showAdd)}
@@ -170,119 +130,57 @@ export default function TransaksiTable() {
         {showAdd ? 'Tutup Form Tambah' : 'Tambah Transaksi'}
       </button>
 
-      {/* Form Tambah */}
       {showAdd && (
         <form onSubmit={handleAdd} className="mb-4 flex flex-wrap gap-2 items-center bg-gray-50 p-4 rounded">
-          <input 
-            className="border px-2 py-1 text-black" 
-            name="id_transaksi" 
-            placeholder="ID Transaksi" 
-            value={addForm.id_transaksi} 
-            onChange={e => setAddForm({ ...addForm, id_transaksi: e.target.value })} 
-            required 
-          />
-          <input 
-            className="border px-2 py-1 text-black" 
-            name="id_produk" 
-            placeholder="ID Produk" 
-            value={addForm.id_produk} 
-            onChange={e => setAddForm({ ...addForm, id_produk: e.target.value })} 
-            required 
-          />
-          <input 
-            className="border px-2 py-1 text-black" 
-            name="nama_pembeli" 
-            placeholder="Nama Pembeli" 
-            value={addForm.nama_pembeli} 
-            onChange={e => setAddForm({ ...addForm, nama_pembeli: e.target.value })} 
-            required 
-          />
-          <input 
-            className="border px-2 py-1 text-black" 
-            name="tanggal_transaksi" 
-            type="date" 
-            placeholder="Tanggal Transaksi" 
-            value={addForm.tanggal_transaksi} 
-            onChange={e => setAddForm({ ...addForm, tanggal_transaksi: e.target.value })} 
-            required 
-          />
-          <input 
-            className="border px-2 py-1 text-black" 
-            name="total_harga" 
-            placeholder="Total Harga" 
-            type="number" 
-            value={addForm.total_harga} 
-            onChange={e => setAddForm({ ...addForm, total_harga: e.target.value })} 
-            required 
-          />
+          <input className="border px-2 py-1 text-black" name="id" placeholder="ID Transaksi" value={addForm.id} onChange={e => setAddForm({ ...addForm, id: e.target.value })} required />
+          <input className="border px-2 py-1 text-black" name="product_id" placeholder="ID Produk" value={addForm.product_id} onChange={e => setAddForm({ ...addForm, product_id: e.target.value })} required />
+          <input className="border px-2 py-1 text-black" name="buyer" placeholder="Nama Pembeli" value={addForm.buyer} onChange={e => setAddForm({ ...addForm, buyer: e.target.value })} required />
+          <input className="border px-2 py-1 text-black" name="date" type="date" placeholder="Tanggal Transaksi" value={addForm.date} onChange={e => setAddForm({ ...addForm, date: e.target.value })} required />
+          <input className="border px-2 py-1 text-black" name="total" placeholder="Total Harga" type="number" value={addForm.total} onChange={e => setAddForm({ ...addForm, total: e.target.value })} required />
           <button type="submit" className="bg-green-600 text-white px-4 py-1 rounded">Simpan</button>
         </form>
       )}
 
-      {/* Loading indicator */}
-      {loading && <div className="text-center py-4 text-white">Loading...</div>}
+      {loading && <div className="text-center py-4">Loading...</div>}
 
-      {/* Tabel */}
       <div className="overflow-x-auto bg-white rounded shadow">
         <table className="min-w-full divide-y divide-gray-200 text-gray-900">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID Transaksi</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID Produk</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Pembeli</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal Transaksi</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Harga</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+              <th className="px-6 py-3">ID Transaksi</th>
+              <th className="px-6 py-3">ID Produk</th>
+              <th className="px-6 py-3">Nama Pembeli</th>
+              <th className="px-6 py-3">Tanggal Transaksi</th>
+              <th className="px-6 py-3">Total Harga</th>
+              <th className="px-6 py-3">Aksi</th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody>
             {Array.isArray(transaksi) && transaksi.length === 0 ? (
               <tr>
                 <td colSpan={6} className="text-center py-4 text-gray-400">
-                  {loading ? 'Loading...' : 'Tidak ada transaksi ditemukan.'}
+                  Tidak ada transaksi ditemukan.
                 </td>
               </tr>
             ) : (
-              Array.isArray(transaksi) && transaksi.map((t: any) =>
-                editId === t.id_transaksi ? (
-                  <tr key={t.id_transaksi} className="bg-yellow-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{t.id_transaksi}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <input 
-                        className="border px-2 py-1 w-full text-black" 
-                        name="id_produk" 
-                        value={editForm.id_produk} 
-                        onChange={e => setEditForm({ ...editForm, id_produk: e.target.value })} 
-                      />
+              transaksi.map((t: any) =>
+                editId === t.id ? (
+                  <tr key={t.id} className="bg-yellow-50">
+                    <td className="px-6 py-4">{t.id}</td>
+                    <td className="px-6 py-4">
+                      <input className="border px-2 py-1 w-full" name="product_id" value={editForm.product_id} onChange={e => setEditForm({ ...editForm, product_id: e.target.value })} />
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <input 
-                        className="border px-2 py-1 w-full text-black" 
-                        name="nama_pembeli" 
-                        value={editForm.nama_pembeli} 
-                        onChange={e => setEditForm({ ...editForm, nama_pembeli: e.target.value })} 
-                      />
+                    <td className="px-6 py-4">
+                      <input className="border px-2 py-1 w-full" name="buyer" value={editForm.buyer} onChange={e => setEditForm({ ...editForm, buyer: e.target.value })} />
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <input 
-                        className="border px-2 py-1 w-full text-black" 
-                        name="tanggal_transaksi" 
-                        type="date" 
-                        value={editForm.tanggal_transaksi} 
-                        onChange={e => setEditForm({ ...editForm, tanggal_transaksi: e.target.value })} 
-                      />
+                    <td className="px-6 py-4">
+                      <input className="border px-2 py-1 w-full" name="date" type="date" value={editForm.date} onChange={e => setEditForm({ ...editForm, date: e.target.value })} />
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <input 
-                        className="border px-2 py-1 w-full text-black" 
-                        name="total_harga" 
-                        type="number" 
-                        value={editForm.total_harga} 
-                        onChange={e => setEditForm({ ...editForm, total_harga: e.target.value })} 
-                      />
+                    <td className="px-6 py-4">
+                      <input className="border px-2 py-1 w-full" name="total" type="number" value={editForm.total} onChange={e => setEditForm({ ...editForm, total: e.target.value })} />
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <button className="bg-blue-600 text-white px-2 py-1 rounded mr-2" onClick={handleUpdate}>
+                    <td className="px-6 py-4 flex gap-2">
+                      <button className="bg-blue-600 text-white px-2 py-1 rounded" onClick={handleUpdate}>
                         Simpan
                       </button>
                       <button className="bg-gray-400 text-white px-2 py-1 rounded" onClick={() => setEditId(null)}>
@@ -291,19 +189,17 @@ export default function TransaksiTable() {
                     </td>
                   </tr>
                 ) : (
-                  <tr key={t.id_transaksi}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{t.id_transaksi}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{t.id_produk}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{t.nama_pembeli}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {t.tanggal_transaksi ? new Date(t.tanggal_transaksi).toLocaleDateString('id-ID') : ''}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatRupiah(t.total_harga)}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <button className="bg-yellow-400 text-white px-2 py-1 rounded mr-2" onClick={() => handleEdit(t)}>
+                  <tr key={t.id}>
+                    <td className="px-6 py-4">{t.id}</td>
+                    <td className="px-6 py-4">{t.product_id}</td>
+                    <td className="px-6 py-4">{t.buyer}</td>
+                    <td>{t.date ? new Date(t.date).toLocaleDateString('id-ID') : ''}</td>
+                    <td className="px-6 py-4">{formatRupiah(t.total)}</td>
+                    <td className="px-6 py-4 flex gap-2">
+                      <button className="bg-yellow-400 px-2 py-1 rounded" onClick={() => handleEdit(t)}>
                         Edit
                       </button>
-                      <button className="bg-red-500 text-white px-2 py-1 rounded" onClick={() => handleDelete(t.id_transaksi)}>
+                      <button className="bg-red-500 text-white px-2 py-1 rounded" onClick={() => handleDelete(t.id)}>
                         Hapus
                       </button>
                     </td>
