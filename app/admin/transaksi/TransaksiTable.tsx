@@ -29,9 +29,20 @@ export default function TransaksiTable() {
 
   const fetchTransaksi = async (query = '') => {
     setLoading(true);
-    const res = await fetch(`/api/transaksi${query ? `?q=${encodeURIComponent(query)}` : ''}`);
-    const data = await res.json();
-    setTransaksi(data);
+    try {
+      const res = await fetch(`/api/transaksi${query ? `?q=${encodeURIComponent(query)}` : ''}`);
+      const data = await res.json();
+      // Pastikan data array, jika tidak maka setTransaksi([])
+      if (Array.isArray(data)) {
+        setTransaksi(data);
+      } else if (Array.isArray(data?.rows)) {
+        setTransaksi(data.rows);
+      } else {
+        setTransaksi([]);
+      }
+    } catch (e) {
+      setTransaksi([]);
+    }
     setLoading(false);
   };
 
@@ -44,9 +55,7 @@ export default function TransaksiTable() {
     const val = e.target.value;
     setSearch(val);
 
-    if (searchTimer) {
-      clearTimeout(searchTimer);
-    }
+    if (searchTimer) clearTimeout(searchTimer);
 
     const timer = setTimeout(() => {
       fetchTransaksi(val);
@@ -77,7 +86,7 @@ export default function TransaksiTable() {
       id_produk: t.id_produk,
       nama_pembeli: t.nama_pembeli,
       tanggal_transaksi: t.tanggal_transaksi,
-      total_harga: t.total_harga.toString(),
+      total_harga: t.total_harga?.toString() ?? '',
     });
   };
 
@@ -151,7 +160,7 @@ export default function TransaksiTable() {
             </tr>
           </thead>
           <tbody>
-            {transaksi.length === 0 ? (
+            {Array.isArray(transaksi) && transaksi.length === 0 ? (
               <tr>
                 <td colSpan={6} className="text-center py-4 text-gray-400">
                   Tidak ada transaksi ditemukan.
