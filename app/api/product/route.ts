@@ -3,13 +3,13 @@ import { sql } from '../../lib/neondb';
 
 export async function GET(request: NextRequest) {
   try {
-    console.log('API /api/produk dipanggil'); // Debug log
+    console.log('API /api/produk called'); // Debug log
     
     const { searchParams } = new URL(request.url);
     const q = searchParams.get('q');
 
     let result;
-    if (q) {
+    if (q && q.trim() !== '') {
       result = await sql`
         SELECT id_produk, nama_produk, harga, foto, deskripsi
         FROM produk
@@ -27,11 +27,11 @@ export async function GET(request: NextRequest) {
       `;
     }
 
-    console.log('Data berhasil diambil:', result.length); // Debug log
+    console.log('Data fetched:', result.length || 0, 'items'); // Debug log
     return NextResponse.json(result);
   } catch (error) {
     console.error('Database error:', error);
-    return NextResponse.json({ error: 'Gagal mengambil data produk' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to fetch products', details: error }, { status: 500 });
   }
 }
 
@@ -45,9 +45,9 @@ export async function POST(request: NextRequest) {
       VALUES (${id_produk}, ${nama_produk}, ${harga}, ${foto}, ${deskripsi})
     `;
     
-    return NextResponse.json({ message: 'Produk berhasil ditambahkan' }, { status: 201 });
+    return NextResponse.json({ message: 'Product added successfully' }, { status: 201 });
   } catch (error) {
-    console.error('Database error:', error);
-    return NextResponse.json({ error: 'Gagal menambah produk' }, { status: 500 });
+    console.error('Insert error:', error);
+    return NextResponse.json({ error: 'Failed to add product', details: error }, { status: 500 });
   }
 }
