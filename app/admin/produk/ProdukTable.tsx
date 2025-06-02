@@ -80,7 +80,7 @@ export default function ProdukTable({ products }: { products: any[] }) {
       {showAdd && (
         <form onSubmit={handleAdd} className="mb-4 flex flex-wrap gap-2 items-center bg-gray-50 p-4 rounded">
           <input
-            className="border px-2 py-1"
+            className="border px-2 py-1 text-black"
             name="id_produk"
             placeholder="ID Produk"
             value={addForm.id_produk}
@@ -88,7 +88,7 @@ export default function ProdukTable({ products }: { products: any[] }) {
             required
           />
           <input
-            className="border px-2 py-1"
+            className="border px-2 py-1 text-black"
             name="nama_produk"
             placeholder="Nama Produk"
             value={addForm.nama_produk}
@@ -96,7 +96,7 @@ export default function ProdukTable({ products }: { products: any[] }) {
             required
           />
           <input
-            className="border px-2 py-1"
+            className="border px-2 py-1 text-black"
             name="harga"
             placeholder="Harga"
             type="number"
@@ -105,7 +105,7 @@ export default function ProdukTable({ products }: { products: any[] }) {
             required
           />
           <input
-            className="border px-2 py-1"
+            className="border px-2 py-1 text-black"
             name="foto"
             placeholder="Link Gambar"
             value={addForm.foto}
@@ -113,7 +113,7 @@ export default function ProdukTable({ products }: { products: any[] }) {
             required
           />
           <input
-            className="border px-2 py-1"
+            className="border px-2 py-1 text-black"
             name="deskripsi"
             placeholder="Deskripsi"
             value={addForm.deskripsi}

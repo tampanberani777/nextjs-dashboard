@@ -1,12 +1,16 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 function formatRupiah(num: number) {
   return "Rp " + Number(num).toLocaleString("id-ID");
 }
 
-export default function TransaksiTable({ transaksi }: { transaksi: any[] }) {
+export default function TransaksiTable() {
+  const [searchTimer, setSearchTimer] = useState<NodeJS.Timeout | null>(null);
+  const [transaksi, setTransaksi] = useState<any[]>([]);
+  const [search, setSearch] = useState('');
+  const [loading, setLoading] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState({
     id_produk: '',
@@ -23,20 +27,49 @@ export default function TransaksiTable({ transaksi }: { transaksi: any[] }) {
     total_harga: '',
   });
 
-  // Tambah transaksi
+  const fetchTransaksi = async (query = '') => {
+    setLoading(true);
+    const res = await fetch(`/api/transaksi${query ? `?q=${encodeURIComponent(query)}` : ''}`);
+    const data = await res.json();
+    setTransaksi(data);
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    fetchTransaksi();
+  }, []);
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const val = e.target.value;
+  setSearch(val);
+
+  if (searchTimer) {
+    clearTimeout(searchTimer);
+  }
+
+  const timer = setTimeout(() => {
+    fetchTransaksi(val);
+  }, 300);
+
+  setSearchTimer(timer);
+};
+
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
-    await fetch('/api/transaksi', {
+    const res = await fetch('/api/transaksi', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ...addForm, total_harga: Number(addForm.total_harga) }),
     });
-    setAddForm({ id_transaksi: '', id_produk: '', nama_pembeli: '', tanggal_transaksi: '', total_harga: '' });
-    setShowAdd(false);
-    window.location.reload();
+    if (res.ok) {
+      setAddForm({ id_transaksi: '', id_produk: '', nama_pembeli: '', tanggal_transaksi: '', total_harga: '' });
+      setShowAdd(false);
+      fetchTransaksi(search);
+    } else {
+      alert('Gagal menambah transaksi');
+    }
   };
 
-  // Edit transaksi
   const handleEdit = (t: any) => {
     setEditId(t.id_transaksi);
     setEditForm({
@@ -47,27 +80,42 @@ export default function TransaksiTable({ transaksi }: { transaksi: any[] }) {
     });
   };
 
-  // Simpan edit
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
-    await fetch(`/api/transaksi/${editId}`, {
+    const res = await fetch(`/api/transaksi/${editId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ...editForm, total_harga: Number(editForm.total_harga) }),
     });
-    setEditId(null);
-    window.location.reload();
+    if (res.ok) {
+      setEditId(null);
+      fetchTransaksi(search);
+    } else {
+      alert('Gagal mengupdate transaksi');
+    }
   };
 
-  // Hapus transaksi
   const handleDelete = async (id: string) => {
     if (!confirm('Yakin ingin menghapus transaksi ini?')) return;
-    await fetch(`/api/transaksi/${id}`, { method: 'DELETE' });
-    window.location.reload();
+    const res = await fetch(`/api/transaksi/${id}`, { method: 'DELETE' });
+    if (res.ok) {
+      fetchTransaksi(search);
+    } else {
+      alert('Gagal menghapus transaksi');
+    }
   };
 
   return (
     <div>
+      {/* Search */}
+      <input
+        type="text"
+        placeholder="Cari transaksi..."
+        value={search}
+        onChange={handleSearchChange}
+        className="border px-2 py-1 mb-4 w-full max-w-sm"
+      />
+
       {/* Tombol Tambah */}
       <button
         className="mb-4 bg-blue-600 text-white px-4 py-2 rounded"
@@ -76,7 +124,7 @@ export default function TransaksiTable({ transaksi }: { transaksi: any[] }) {
         {showAdd ? 'Tutup Form Tambah' : 'Tambah Transaksi'}
       </button>
 
-      {/* Form Tambah Transaksi */}
+      {/* Form Tambah */}
       {showAdd && (
         <form onSubmit={handleAdd} className="mb-4 flex flex-wrap gap-2 items-center bg-gray-50 p-4 rounded">
           <input className="border px-2 py-1" name="id_transaksi" placeholder="ID Transaksi" value={addForm.id_transaksi} onChange={e => setAddForm({ ...addForm, id_transaksi: e.target.value })} required />
@@ -88,7 +136,7 @@ export default function TransaksiTable({ transaksi }: { transaksi: any[] }) {
         </form>
       )}
 
-      {/* Tabel Transaksi */}
+      {/* Tabel */}
       <div className="overflow-x-auto bg-white rounded shadow">
         <table className="min-w-full divide-y divide-gray-200 text-gray-900">
           <thead className="bg-gray-50">
