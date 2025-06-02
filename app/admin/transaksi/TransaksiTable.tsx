@@ -33,17 +33,18 @@ export default function TransaksiTable() {
       const res = await fetch(`/api/transaksi${query ? `?q=${encodeURIComponent(query)}` : ''}`);
       const data = await res.json();
       
-      console.log('Fetched data:', data);
+      console.log('Fetched data:', data); // Debug log
       
-      // Handle response format dengan benar
+      // Handle different response formats
       if (Array.isArray(data)) {
         setTransaksi(data);
       } else if (data && Array.isArray(data.rows)) {
         setTransaksi(data.rows);
-      } else if (data && typeof data === 'object' && !Array.isArray(data)) {
-        console.error('Unexpected data format:', data);
+      } else if (data && data.error) {
+        console.error('API Error:', data.error);
         setTransaksi([]);
       } else {
+        console.error('Unexpected data format:', data);
         setTransaksi([]);
       }
     } catch (error) {
@@ -80,12 +81,16 @@ export default function TransaksiTable() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...addForm, total_harga: Number(addForm.total_harga) }),
       });
+      
       if (res.ok) {
         setAddForm({ id_transaksi: '', id_produk: '', nama_pembeli: '', tanggal_transaksi: '', total_harga: '' });
         setShowAdd(false);
         fetchTransaksi(search);
+        alert('Transaksi berhasil ditambahkan');
       } else {
-        alert('Gagal menambah transaksi');
+        const errorData = await res.json();
+        console.error('Add error:', errorData);
+        alert('Gagal menambah transaksi: ' + (errorData.error || 'Unknown error'));
       }
     } catch (error) {
       console.error('Add error:', error);
@@ -111,11 +116,15 @@ export default function TransaksiTable() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...editForm, total_harga: Number(editForm.total_harga) }),
       });
+      
       if (res.ok) {
         setEditId(null);
         fetchTransaksi(search);
+        alert('Transaksi berhasil diupdate');
       } else {
-        alert('Gagal mengupdate transaksi');
+        const errorData = await res.json();
+        console.error('Update error:', errorData);
+        alert('Gagal mengupdate transaksi: ' + (errorData.error || 'Unknown error'));
       }
     } catch (error) {
       console.error('Update error:', error);
@@ -127,10 +136,14 @@ export default function TransaksiTable() {
     if (!confirm('Yakin ingin menghapus transaksi ini?')) return;
     try {
       const res = await fetch(`/api/transaksi/${id}`, { method: 'DELETE' });
+      
       if (res.ok) {
         fetchTransaksi(search);
+        alert('Transaksi berhasil dihapus');
       } else {
-        alert('Gagal menghapus transaksi');
+        const errorData = await res.json();
+        console.error('Delete error:', errorData);
+        alert('Gagal menghapus transaksi: ' + (errorData.error || 'Unknown error'));
       }
     } catch (error) {
       console.error('Delete error:', error);
@@ -160,17 +173,54 @@ export default function TransaksiTable() {
       {/* Form Tambah */}
       {showAdd && (
         <form onSubmit={handleAdd} className="mb-4 flex flex-wrap gap-2 items-center bg-gray-50 p-4 rounded">
-          <input className="border px-2 py-1 text-black" name="id_transaksi" placeholder="ID Transaksi" value={addForm.id_transaksi} onChange={e => setAddForm({ ...addForm, id_transaksi: e.target.value })} required />
-          <input className="border px-2 py-1 text-black" name="id_produk" placeholder="ID Produk" value={addForm.id_produk} onChange={e => setAddForm({ ...addForm, id_produk: e.target.value })} required />
-          <input className="border px-2 py-1 text-black" name="nama_pembeli" placeholder="Nama Pembeli" value={addForm.nama_pembeli} onChange={e => setAddForm({ ...addForm, nama_pembeli: e.target.value })} required />
-          <input className="border px-2 py-1 text-black" name="tanggal_transaksi" type="date" placeholder="Tanggal Transaksi" value={addForm.tanggal_transaksi} onChange={e => setAddForm({ ...addForm, tanggal_transaksi: e.target.value })} required />
-          <input className="border px-2 py-1 text-black" name="total_harga" placeholder="Total Harga" type="number" value={addForm.total_harga} onChange={e => setAddForm({ ...addForm, total_harga: e.target.value })} required />
+          <input 
+            className="border px-2 py-1 text-black" 
+            name="id_transaksi" 
+            placeholder="ID Transaksi" 
+            value={addForm.id_transaksi} 
+            onChange={e => setAddForm({ ...addForm, id_transaksi: e.target.value })} 
+            required 
+          />
+          <input 
+            className="border px-2 py-1 text-black" 
+            name="id_produk" 
+            placeholder="ID Produk" 
+            value={addForm.id_produk} 
+            onChange={e => setAddForm({ ...addForm, id_produk: e.target.value })} 
+            required 
+          />
+          <input 
+            className="border px-2 py-1 text-black" 
+            name="nama_pembeli" 
+            placeholder="Nama Pembeli" 
+            value={addForm.nama_pembeli} 
+            onChange={e => setAddForm({ ...addForm, nama_pembeli: e.target.value })} 
+            required 
+          />
+          <input 
+            className="border px-2 py-1 text-black" 
+            name="tanggal_transaksi" 
+            type="date" 
+            placeholder="Tanggal Transaksi" 
+            value={addForm.tanggal_transaksi} 
+            onChange={e => setAddForm({ ...addForm, tanggal_transaksi: e.target.value })} 
+            required 
+          />
+          <input 
+            className="border px-2 py-1 text-black" 
+            name="total_harga" 
+            placeholder="Total Harga" 
+            type="number" 
+            value={addForm.total_harga} 
+            onChange={e => setAddForm({ ...addForm, total_harga: e.target.value })} 
+            required 
+          />
           <button type="submit" className="bg-green-600 text-white px-4 py-1 rounded">Simpan</button>
         </form>
       )}
 
       {/* Loading indicator */}
-      {loading && <div className="text-center py-4">Loading...</div>}
+      {loading && <div className="text-center py-4 text-white">Loading...</div>}
 
       {/* Tabel */}
       <div className="overflow-x-auto bg-white rounded shadow">
@@ -189,7 +239,7 @@ export default function TransaksiTable() {
             {Array.isArray(transaksi) && transaksi.length === 0 ? (
               <tr>
                 <td colSpan={6} className="text-center py-4 text-gray-400">
-                  Tidak ada transaksi ditemukan.
+                  {loading ? 'Loading...' : 'Tidak ada transaksi ditemukan.'}
                 </td>
               </tr>
             ) : (
@@ -198,16 +248,38 @@ export default function TransaksiTable() {
                   <tr key={t.id_transaksi} className="bg-yellow-50">
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{t.id_transaksi}</td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <input className="border px-2 py-1 w-full text-black" name="id_produk" value={editForm.id_produk} onChange={e => setEditForm({ ...editForm, id_produk: e.target.value })} />
+                      <input 
+                        className="border px-2 py-1 w-full text-black" 
+                        name="id_produk" 
+                        value={editForm.id_produk} 
+                        onChange={e => setEditForm({ ...editForm, id_produk: e.target.value })} 
+                      />
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <input className="border px-2 py-1 w-full text-black" name="nama_pembeli" value={editForm.nama_pembeli} onChange={e => setEditForm({ ...editForm, nama_pembeli: e.target.value })} />
+                      <input 
+                        className="border px-2 py-1 w-full text-black" 
+                        name="nama_pembeli" 
+                        value={editForm.nama_pembeli} 
+                        onChange={e => setEditForm({ ...editForm, nama_pembeli: e.target.value })} 
+                      />
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <input className="border px-2 py-1 w-full text-black" name="tanggal_transaksi" type="date" value={editForm.tanggal_transaksi} onChange={e => setEditForm({ ...editForm, tanggal_transaksi: e.target.value })} />
+                      <input 
+                        className="border px-2 py-1 w-full text-black" 
+                        name="tanggal_transaksi" 
+                        type="date" 
+                        value={editForm.tanggal_transaksi} 
+                        onChange={e => setEditForm({ ...editForm, tanggal_transaksi: e.target.value })} 
+                      />
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <input className="border px-2 py-1 w-full text-black" name="total_harga" type="number" value={editForm.total_harga} onChange={e => setEditForm({ ...editForm, total_harga: e.target.value })} />
+                      <input 
+                        className="border px-2 py-1 w-full text-black" 
+                        name="total_harga" 
+                        type="number" 
+                        value={editForm.total_harga} 
+                        onChange={e => setEditForm({ ...editForm, total_harga: e.target.value })} 
+                      />
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <button className="bg-blue-600 text-white px-2 py-1 rounded mr-2" onClick={handleUpdate}>
@@ -223,7 +295,9 @@ export default function TransaksiTable() {
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{t.id_transaksi}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{t.id_produk}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{t.nama_pembeli}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{t.tanggal_transaksi ? new Date(t.tanggal_transaksi).toLocaleDateString('id-ID') : ''}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {t.tanggal_transaksi ? new Date(t.tanggal_transaksi).toLocaleDateString('id-ID') : ''}
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatRupiah(t.total_harga)}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <button className="bg-yellow-400 text-white px-2 py-1 rounded mr-2" onClick={() => handleEdit(t)}>
