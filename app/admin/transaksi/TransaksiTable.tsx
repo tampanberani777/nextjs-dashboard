@@ -37,22 +37,23 @@ export default function TransaksiTable() {
 
   useEffect(() => {
     fetchTransaksi();
+    // eslint-disable-next-line
   }, []);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  const val = e.target.value;
-  setSearch(val);
+    const val = e.target.value;
+    setSearch(val);
 
-  if (searchTimer) {
-    clearTimeout(searchTimer);
-  }
+    if (searchTimer) {
+      clearTimeout(searchTimer);
+    }
 
-  const timer = setTimeout(() => {
-    fetchTransaksi(val);
-  }, 300);
+    const timer = setTimeout(() => {
+      fetchTransaksi(val);
+    }, 300);
 
-  setSearchTimer(timer);
-};
+    setSearchTimer(timer);
+  };
 
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
