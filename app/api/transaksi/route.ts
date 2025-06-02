@@ -27,6 +27,24 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(result);
   } catch (error) {
+    console.error('Database error:', error);
     return NextResponse.json({ error: 'Gagal mengambil data transaksi' }, { status: 500 });
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const { id_transaksi, id_produk, nama_pembeli, tanggal_transaksi, total_harga } = body;
+    
+    await sql`
+      INSERT INTO transaksi (id_transaksi, id_produk, nama_pembeli, tanggal_transaksi, total_harga)
+      VALUES (${id_transaksi}, ${id_produk}, ${nama_pembeli}, ${tanggal_transaksi}, ${total_harga})
+    `;
+    
+    return NextResponse.json({ message: 'Transaksi berhasil ditambahkan' }, { status: 201 });
+  } catch (error) {
+    console.error('Database error:', error);
+    return NextResponse.json({ error: 'Gagal menambah transaksi' }, { status: 500 });
   }
 }
