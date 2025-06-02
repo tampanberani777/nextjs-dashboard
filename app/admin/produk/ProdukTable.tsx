@@ -1,16 +1,18 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import dynamic from 'next/dynamic';
 
 function formatRupiah(num: number) {
   return "Rp " + Number(num).toLocaleString("id-ID");
 }
 
-export default function ProdukTable() {
+function ProdukTableComponent() {
   const [searchTimer, setSearchTimer] = useState<NodeJS.Timeout | null>(null);
   const [products, setProducts] = useState<any[]>([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isClient, setIsClient] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState({
     nama_produk: '',
@@ -27,30 +29,41 @@ export default function ProdukTable() {
     deskripsi: '',
   });
 
-  // Fetch produk dari API (dengan search)
+  // Fix hydration dengan useEffect
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   const fetchProducts = async (query = '') => {
     setLoading(true);
     try {
       const res = await fetch(`/api/produk${query ? `?q=${encodeURIComponent(query)}` : ''}`);
       const data = await res.json();
+      
+      console.log('Fetched products:', data); // Debug log
+      
+      // Handle response dari Neon SQL
       if (Array.isArray(data)) {
         setProducts(data);
-      } else if (data && Array.isArray(data.rows)) {
-        setProducts(data.rows);
+      } else if (data && data.length !== undefined) {
+        setProducts(data);
       } else {
+        console.error('Unexpected data format:', data);
         setProducts([]);
       }
     } catch (error) {
+      console.error('Fetch error:', error);
       setProducts([]);
     }
     setLoading(false);
   };
 
   useEffect(() => {
-    fetchProducts();
-  }, []);
+    if (isClient) {
+      fetchProducts();
+    }
+  }, [isClient]);
 
-  // Search handler
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     setSearch(val);
@@ -64,20 +77,29 @@ export default function ProdukTable() {
     setSearchTimer(timer);
   };
 
-  // Tambah produk baru
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
-    await fetch('/api/produk', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...addForm, harga: Number(addForm.harga) }),
-    });
-    setAddForm({ id_produk: '', nama_produk: '', harga: '', foto: '', deskripsi: '' });
-    setShowAdd(false);
-    fetchProducts(search);
+    try {
+      const res = await fetch('/api/produk', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...addForm, harga: Number(addForm.harga) }),
+      });
+      
+      if (res.ok) {
+        setAddForm({ id_produk: '', nama_produk: '', harga: '', foto: '', deskripsi: '' });
+        setShowAdd(false);
+        fetchProducts(search);
+        alert('Produk berhasil ditambahkan');
+      } else {
+        alert('Gagal menambah produk');
+      }
+    } catch (error) {
+      console.error('Add error:', error);
+      alert('Gagal menambah produk');
+    }
   };
 
-  // Edit produk
   const handleEdit = (p: any) => {
     setEditId(p.id_produk);
     setEditForm({
@@ -88,27 +110,63 @@ export default function ProdukTable() {
     });
   };
 
-  // Simpan edit ke database
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
-    await fetch(`/api/produk/${editId}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...editForm, harga: Number(editForm.harga) }),
-    });
-    setEditId(null);
-    fetchProducts(search);
+    try {
+      const res = await fetch(`/api/produk/${editId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...editForm, harga: Number(editForm.harga) }),
+      });
+      
+      if (res.ok) {
+        setEditId(null);
+        fetchProducts(search);
+        alert('Produk berhasil diupdate');
+      } else {
+        alert('Gagal mengupdate produk');
+      }
+    } catch (error) {
+      console.error('Update error:', error);
+      alert('Gagal mengupdate produk');
+    }
   };
 
-  // Hapus produk
   const handleDelete = async (id: string) => {
     if (!confirm('Yakin ingin menghapus produk ini?')) return;
-    await fetch(`/api/produk/${id}`, { method: 'DELETE' });
-    fetchProducts(search);
+    try {
+      const res = await fetch(`/api/produk/${id}`, { method: 'DELETE' });
+      
+      if (res.ok) {
+        fetchProducts(search);
+        alert('Produk berhasil dihapus');
+      } else {
+        alert('Gagal menghapus produk');
+      }
+    } catch (error) {
+      console.error('Delete error:', error);
+      alert('Gagal menghapus produk');
+    }
   };
 
+  // Render loading state selama hydration
+  if (!isClient) {
+    return (
+      <div className="animate-pulse">
+        <div className="h-10 bg-gray-200 rounded w-full max-w-sm mb-4"></div>
+        <div className="h-10 bg-blue-200 rounded w-40 mb-4"></div>
+        <div className="bg-white rounded shadow overflow-hidden">
+          <div className="h-12 bg-gray-100"></div>
+          <div className="p-4">
+            <div className="text-center text-gray-400">Loading...</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div>
+    <div suppressHydrationWarning>
       {/* Search Input */}
       <input
         type="text"
@@ -116,12 +174,14 @@ export default function ProdukTable() {
         value={search}
         onChange={handleSearchChange}
         className="border px-2 py-1 mb-4 w-full max-w-sm text-black"
+        suppressHydrationWarning
       />
 
       {/* Tombol Tambah Produk */}
       <button
         className="mb-4 bg-blue-600 text-white px-4 py-2 rounded"
         onClick={() => setShowAdd(!showAdd)}
+        suppressHydrationWarning
       >
         {showAdd ? 'Tutup Form Tambah' : 'Tambah Produk'}
       </button>
@@ -138,59 +198,62 @@ export default function ProdukTable() {
         </form>
       )}
 
+      {/* Loading indicator */}
+      {loading && <div className="text-center py-4">Loading...</div>}
+
       {/* Tabel Produk */}
       <div className="overflow-x-auto bg-white rounded shadow">
         <table className="min-w-full divide-y divide-gray-200 text-gray-900">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-6 py-3">ID Produk</th>
-              <th className="px-6 py-3">Nama Produk</th>
-              <th className="px-6 py-3">Harga</th>
-              <th className="px-6 py-3">Gambar</th>
-              <th className="px-6 py-3">Deskripsi</th>
-              <th className="px-6 py-3">Aksi</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID Produk</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Produk</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Harga</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Gambar</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Deskripsi</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
             </tr>
           </thead>
-          <tbody>
-            {products.length === 0 ? (
+          <tbody className="bg-white divide-y divide-gray-200">
+            {Array.isArray(products) && products.length === 0 ? (
               <tr>
                 <td colSpan={6} className="text-center py-4 text-gray-400">
-                  Tidak ada produk ditemukan.
+                  {loading ? 'Loading...' : 'Tidak ada produk ditemukan.'}
                 </td>
               </tr>
             ) : (
-              products.map((p: any) =>
+              Array.isArray(products) && products.map((p: any) =>
                 editId === p.id_produk ? (
                   <tr key={p.id_produk} className="bg-yellow-50">
-                    <td className="px-6 py-4">{p.id_produk}</td>
-                    <td className="px-6 py-4">
-                      <input className="border px-2 py-1 w-full" name="nama_produk" value={editForm.nama_produk} onChange={e => setEditForm({ ...editForm, nama_produk: e.target.value })} />
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{p.id_produk}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <input className="border px-2 py-1 w-full text-black" name="nama_produk" value={editForm.nama_produk} onChange={e => setEditForm({ ...editForm, nama_produk: e.target.value })} />
                     </td>
-                    <td className="px-6 py-4">
-                      <input className="border px-2 py-1 w-full" name="harga" type="number" value={editForm.harga} onChange={e => setEditForm({ ...editForm, harga: e.target.value })} />
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <input className="border px-2 py-1 w-full text-black" name="harga" type="number" value={editForm.harga} onChange={e => setEditForm({ ...editForm, harga: e.target.value })} />
                     </td>
-                    <td className="px-6 py-4">
-                      <input className="border px-2 py-1 w-full" name="foto" value={editForm.foto} onChange={e => setEditForm({ ...editForm, foto: e.target.value })} />
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <input className="border px-2 py-1 w-full text-black" name="foto" value={editForm.foto} onChange={e => setEditForm({ ...editForm, foto: e.target.value })} />
                     </td>
-                    <td className="px-6 py-4">
-                      <input className="border px-2 py-1 w-full" name="deskripsi" value={editForm.deskripsi} onChange={e => setEditForm({ ...editForm, deskripsi: e.target.value })} />
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <input className="border px-2 py-1 w-full text-black" name="deskripsi" value={editForm.deskripsi} onChange={e => setEditForm({ ...editForm, deskripsi: e.target.value })} />
                     </td>
-                    <td className="px-6 py-4 flex gap-2">
-                      <button className="bg-blue-600 text-white px-2 py-1 rounded" onClick={handleUpdate}>Simpan</button>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <button className="bg-blue-600 text-white px-2 py-1 rounded mr-2" onClick={handleUpdate}>Simpan</button>
                       <button className="bg-gray-400 text-white px-2 py-1 rounded" onClick={() => setEditId(null)}>Batal</button>
                     </td>
                   </tr>
                 ) : (
                   <tr key={p.id_produk}>
-                    <td className="px-6 py-4">{p.id_produk}</td>
-                    <td className="px-6 py-4">{p.nama_produk}</td>
-                    <td className="px-6 py-4">{formatRupiah(p.harga)}</td>
-                    <td className="px-6 py-4">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{p.id_produk}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{p.nama_produk}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatRupiah(p.harga)}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">
                       <img src={p.foto} alt={p.nama_produk} className="w-16 h-16 object-cover rounded" />
                     </td>
-                    <td className="px-6 py-4">{p.deskripsi}</td>
-                    <td className="px-6 py-4 flex gap-2">
-                      <button className="bg-yellow-400 px-2 py-1 rounded" onClick={() => handleEdit(p)}>Edit</button>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{p.deskripsi}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <button className="bg-yellow-400 text-white px-2 py-1 rounded mr-2" onClick={() => handleEdit(p)}>Edit</button>
                       <button className="bg-red-500 text-white px-2 py-1 rounded" onClick={() => handleDelete(p.id_produk)}>Hapus</button>
                     </td>
                   </tr>
@@ -203,3 +266,22 @@ export default function ProdukTable() {
     </div>
   );
 }
+
+// Export dengan dynamic import untuk disable SSR
+const ProdukTable = dynamic(() => Promise.resolve(ProdukTableComponent), {
+  ssr: false,
+  loading: () => (
+    <div className="animate-pulse">
+      <div className="h-10 bg-gray-200 rounded w-full max-w-sm mb-4"></div>
+      <div className="h-10 bg-blue-200 rounded w-40 mb-4"></div>
+      <div className="bg-white rounded shadow overflow-hidden">
+        <div className="h-12 bg-gray-100"></div>
+        <div className="p-4">
+          <div className="text-center text-gray-400">Loading...</div>
+        </div>
+      </div>
+    </div>
+  )
+});
+
+export default ProdukTable;
