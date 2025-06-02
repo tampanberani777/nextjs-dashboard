@@ -1,18 +1,16 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import dynamic from 'next/dynamic';
 
 function formatRupiah(num: number) {
   return "Rp " + Number(num).toLocaleString("id-ID");
 }
 
-function TransaksiTableComponent() {
+export default function TransaksiTable() {
   const [searchTimer, setSearchTimer] = useState<NodeJS.Timeout | null>(null);
   const [transaksi, setTransaksi] = useState<any[]>([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(false);
-  const [isClient, setIsClient] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState({
     id_produk: '',
@@ -29,11 +27,6 @@ function TransaksiTableComponent() {
     total_harga: '',
   });
 
-  // Fix hydration dengan useEffect
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
   const fetchTransaksi = async (query = '') => {
     setLoading(true);
     try {
@@ -42,12 +35,15 @@ function TransaksiTableComponent() {
       
       console.log('Fetched data:', data);
       
+      // Handle response format dengan benar
       if (Array.isArray(data)) {
         setTransaksi(data);
       } else if (data && Array.isArray(data.rows)) {
         setTransaksi(data.rows);
-      } else {
+      } else if (data && typeof data === 'object' && !Array.isArray(data)) {
         console.error('Unexpected data format:', data);
+        setTransaksi([]);
+      } else {
         setTransaksi([]);
       }
     } catch (error) {
@@ -58,16 +54,16 @@ function TransaksiTableComponent() {
   };
 
   useEffect(() => {
-    if (isClient) {
-      fetchTransaksi();
-    }
-  }, [isClient]);
+    fetchTransaksi();
+  }, []);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     setSearch(val);
 
-    if (searchTimer) clearTimeout(searchTimer);
+    if (searchTimer) {
+      clearTimeout(searchTimer);
+    }
 
     const timer = setTimeout(() => {
       fetchTransaksi(val);
@@ -142,24 +138,8 @@ function TransaksiTableComponent() {
     }
   };
 
-  // Render loading state selama hydration
-  if (!isClient) {
-    return (
-      <div className="animate-pulse">
-        <div className="h-10 bg-gray-200 rounded w-full max-w-sm mb-4"></div>
-        <div className="h-10 bg-blue-200 rounded w-40 mb-4"></div>
-        <div className="bg-white rounded shadow overflow-hidden">
-          <div className="h-12 bg-gray-100"></div>
-          <div className="p-4">
-            <div className="text-center text-gray-400">Loading...</div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div suppressHydrationWarning>
+    <div>
       {/* Search */}
       <input
         type="text"
@@ -167,14 +147,12 @@ function TransaksiTableComponent() {
         value={search}
         onChange={handleSearchChange}
         className="border px-2 py-1 mb-4 w-full max-w-sm text-black"
-        suppressHydrationWarning
       />
 
       {/* Tombol Tambah */}
       <button
         className="mb-4 bg-blue-600 text-white px-4 py-2 rounded"
         onClick={() => setShowAdd(!showAdd)}
-        suppressHydrationWarning
       >
         {showAdd ? 'Tutup Form Tambah' : 'Tambah Transaksi'}
       </button>
@@ -265,22 +243,3 @@ function TransaksiTableComponent() {
     </div>
   );
 }
-
-// Export dengan dynamic import untuk disable SSR
-const TransaksiTable = dynamic(() => Promise.resolve(TransaksiTableComponent), {
-  ssr: false,
-  loading: () => (
-    <div className="animate-pulse">
-      <div className="h-10 bg-gray-200 rounded w-full max-w-sm mb-4"></div>
-      <div className="h-10 bg-blue-200 rounded w-40 mb-4"></div>
-      <div className="bg-white rounded shadow overflow-hidden">
-        <div className="h-12 bg-gray-100"></div>
-        <div className="p-4">
-          <div className="text-center text-gray-400">Loading...</div>
-        </div>
-      </div>
-    </div>
-  )
-});
-
-export default TransaksiTable;

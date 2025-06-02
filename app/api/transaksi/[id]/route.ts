@@ -8,7 +8,8 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     
     await sql`
       UPDATE transaksi
-      SET id_produk = ${id_produk}, nama_pembeli = ${nama_pembeli}, tanggal_transaksi = ${tanggal_transaksi}, total_harga = ${total_harga}
+      SET id_produk = ${id_produk}, nama_pembeli = ${nama_pembeli}, 
+          tanggal_transaksi = ${tanggal_transaksi}, total_harga = ${total_harga}
       WHERE id_transaksi = ${params.id}
     `;
     
