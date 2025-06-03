@@ -11,7 +11,6 @@ export default function AdminLayout({
 }) {
   return (
     <div className="bg-gradient-to-r from-gray-900 to-gray-800 text-gray-100 min-h-screen">
-      
       <main className="max-w-7xl mx-auto p-4">
         {children}
       </main>
