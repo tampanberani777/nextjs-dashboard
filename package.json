@@ -1,9 +1,12 @@
+
 {
+  
   "private": true,
   "scripts": {
     "build": "next build",
     "dev": "next dev --turbopack",
     "start": "next start"
+    
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
@@ -14,6 +17,7 @@
     "autoprefixer": "10.4.20",
     "bcryptjs": "^3.0.2",
     "clsx": "^2.1.1",
+    "lucide-react": "^0.511.0",
     "next": "latest",
     "next-auth": "5.0.0-beta.25",
     "postcss": "8.5.1",

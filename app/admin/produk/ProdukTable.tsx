@@ -3,17 +3,17 @@
 import React, { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 
-function formatRupiah(num: number) {
+function formatRupiah(num) {
   return "Rp " + Number(num).toLocaleString("id-ID");
 }
 
 function ProdukTableComponent() {
-  const [searchTimer, setSearchTimer] = useState<NodeJS.Timeout | null>(null);
-  const [products, setProducts] = useState<any[]>([]);
+  const [searchTimer, setSearchTimer] = useState(null);
+  const [products, setProducts] = useState([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(false);
   const [isClient, setIsClient] = useState(false);
-  const [editId, setEditId] = useState<string | null>(null);
+  const [editId, setEditId] = useState(null);
   const [editForm, setEditForm] = useState({
     nama_produk: '',
     harga: '',
@@ -29,52 +29,30 @@ function ProdukTableComponent() {
     deskripsi: '',
   });
 
-  // Fix hydration dengan useEffect
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
+  useEffect(() => { setIsClient(true); }, []);
 
   const fetchProducts = async (query = '') => {
     setLoading(true);
     try {
       const res = await fetch(`/api/produk${query ? `?q=${encodeURIComponent(query)}` : ''}`);
-      if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
-      }
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
       const data = await res.json();
-      
-      if (Array.isArray(data)) {
-        setProducts(data);
-      } else {
-        setProducts([]);
-      }
-    } catch (error) {
-      console.error('Fetch error:', error);
-      setProducts([]);
-    }
+      setProducts(Array.isArray(data) ? data : []);
+    } catch { setProducts([]); }
     setLoading(false);
   };
 
-  useEffect(() => {
-    if (isClient) {
-      fetchProducts();
-    }
-  }, [isClient]);
+  useEffect(() => { if (isClient) fetchProducts(); }, [isClient]);
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSearchChange = (e) => {
     const val = e.target.value;
     setSearch(val);
-
     if (searchTimer) clearTimeout(searchTimer);
-
-    const timer = setTimeout(() => {
-      fetchProducts(val);
-    }, 300);
-
+    const timer = setTimeout(() => fetchProducts(val), 300);
     setSearchTimer(timer);
   };
 
-  const handleAdd = async (e: React.FormEvent) => {
+  const handleAdd = async (e) => {
     e.preventDefault();
     try {
       const res = await fetch('/api/produk', {
@@ -82,18 +60,15 @@ function ProdukTableComponent() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...addForm, harga: Number(addForm.harga) }),
       });
-      
       if (res.ok) {
         setAddForm({ id_produk: '', nama_produk: '', harga: '', foto: '', deskripsi: '' });
         setShowAdd(false);
         fetchProducts(search);
       }
-    } catch (error) {
-      console.error('Add error:', error);
-    }
+    } catch {}
   };
 
-  const handleEdit = (p: any) => {
+  const handleEdit = (p) => {
     setEditId(p.id_produk);
     setEditForm({
       nama_produk: p.nama_produk,
@@ -103,7 +78,7 @@ function ProdukTableComponent() {
     });
   };
 
-  const handleUpdate = async (e: React.FormEvent) => {
+  const handleUpdate = async (e) => {
     e.preventDefault();
     try {
       const res = await fetch(`/api/produk/${editId}`, {
@@ -111,29 +86,21 @@ function ProdukTableComponent() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...editForm, harga: Number(editForm.harga) }),
       });
-      
       if (res.ok) {
         setEditId(null);
         fetchProducts(search);
       }
-    } catch (error) {
-      console.error('Update error:', error);
-    }
+    } catch {}
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (id) => {
     if (!confirm('Yakin ingin menghapus produk ini?')) return;
     try {
       const res = await fetch(`/api/produk/${id}`, { method: 'DELETE' });
-      if (res.ok) {
-        fetchProducts(search);
-      }
-    } catch (error) {
-      console.error('Delete error:', error);
-    }
+      if (res.ok) fetchProducts(search);
+    } catch {}
   };
 
-  // Loading state selama hydration
   if (!isClient) {
     return (
       <div className="animate-pulse">
@@ -151,51 +118,108 @@ function ProdukTableComponent() {
 
   return (
     <div suppressHydrationWarning>
-      {/* Search Input */}
-      <input
-        type="text"
-        placeholder="Cari produk..."
-        value={search}
-        onChange={handleSearchChange}
-        className="border px-2 py-1 mb-4 w-full max-w-sm text-black"
-        suppressHydrationWarning
-      />
+      {/* Search & Tombol Tambah */}
+      <div className="flex flex-col md:flex-row md:items-center gap-2 mb-4">
+        <input
+          type="text"
+          placeholder="Cari produk..."
+          value={search}
+          onChange={handleSearchChange}
+          className="border border-gray-300 rounded-md px-3 py-2 w-full md:w-64 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        <button
+          className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 rounded-md shadow transition"
+          onClick={() => setShowAdd(!showAdd)}
+        >
+          {showAdd ? 'Tutup Formulir' : 'Tambah Produk'}
+        </button>
+      </div>
 
-      {/* Tombol Tambah */}
-      <button
-        className="mb-4 bg-blue-600 text-white px-4 py-2 rounded"
-        onClick={() => setShowAdd(!showAdd)}
-        suppressHydrationWarning
-      >
-        {showAdd ? 'Tutup Form Tambah' : 'Tambah Produk'}
-      </button>
-
-      {/* Form Tambah */}
+      {/* Form Tambah Produk */}
       {showAdd && (
-        <form onSubmit={handleAdd} className="mb-4 flex flex-wrap gap-2 items-center bg-gray-50 p-4 rounded">
-          <input className="border px-2 py-1 text-black" placeholder="ID Produk" value={addForm.id_produk} onChange={e => setAddForm({ ...addForm, id_produk: e.target.value })} required />
-          <input className="border px-2 py-1 text-black" placeholder="Nama Produk" value={addForm.nama_produk} onChange={e => setAddForm({ ...addForm, nama_produk: e.target.value })} required />
-          <input className="border px-2 py-1 text-black" placeholder="Harga" type="number" value={addForm.harga} onChange={e => setAddForm({ ...addForm, harga: e.target.value })} required />
-          <input className="border px-2 py-1 text-black" placeholder="Link Gambar" value={addForm.foto} onChange={e => setAddForm({ ...addForm, foto: e.target.value })} required />
-          <input className="border px-2 py-1 text-black" placeholder="Deskripsi" value={addForm.deskripsi} onChange={e => setAddForm({ ...addForm, deskripsi: e.target.value })} required />
-          <button type="submit" className="bg-green-600 text-white px-4 py-1 rounded">Simpan</button>
+        <form
+          onSubmit={handleAdd}
+          className="mb-6 max-w-xl mx-auto bg-white rounded-lg shadow-md p-6 border border-gray-200"
+        >
+          <h2 className="text-lg font-semibold mb-4 text-gray-700">Tambah Produk Baru</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block mb-1 text-sm text-gray-600">ID Produk</label>
+              <input
+                className="border border-gray-300 rounded-md px-3 py-2 w-full text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="ID Produk"
+                value={addForm.id_produk}
+                onChange={e => setAddForm({ ...addForm, id_produk: e.target.value })}
+                required
+              />
+            </div>
+            <div>
+              <label className="block mb-1 text-sm text-gray-600">Nama Produk</label>
+              <input
+                className="border border-gray-300 rounded-md px-3 py-2 w-full text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Nama Produk"
+                value={addForm.nama_produk}
+                onChange={e => setAddForm({ ...addForm, nama_produk: e.target.value })}
+                required
+              />
+            </div>
+            <div>
+              <label className="block mb-1 text-sm text-gray-600">Harga</label>
+              <input
+                className="border border-gray-300 rounded-md px-3 py-2 w-full text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Harga"
+                type="number"
+                value={addForm.harga}
+                onChange={e => setAddForm({ ...addForm, harga: e.target.value })}
+                required
+              />
+            </div>
+            <div>
+              <label className="block mb-1 text-sm text-gray-600">Link Gambar</label>
+              <input
+                className="border border-gray-300 rounded-md px-3 py-2 w-full text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Link Gambar"
+                value={addForm.foto}
+                onChange={e => setAddForm({ ...addForm, foto: e.target.value })}
+                required
+              />
+            </div>
+            <div className="md:col-span-2">
+              <label className="block mb-1 text-sm text-gray-600">Deskripsi</label>
+              <input
+                className="border border-gray-300 rounded-md px-3 py-2 w-full text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Deskripsi"
+                value={addForm.deskripsi}
+                onChange={e => setAddForm({ ...addForm, deskripsi: e.target.value })}
+                required
+              />
+            </div>
+          </div>
+          <div className="mt-6 flex justify-end">
+            <button
+              type="submit"
+              className="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-md font-semibold shadow transition"
+            >
+              Simpan
+            </button>
+          </div>
         </form>
       )}
 
       {/* Loading */}
       {loading && <div className="text-center py-4">Loading...</div>}
 
-      {/* Tabel */}
+      {/* Tabel Produk */}
       <div className="overflow-x-auto bg-white rounded shadow">
         <table className="min-w-full divide-y divide-gray-200 text-gray-900">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-6 py-3">ID Produk</th>
-              <th className="px-6 py-3">Nama Produk</th>
-              <th className="px-6 py-3">Harga</th>
-              <th className="px-6 py-3">Gambar</th>
-              <th className="px-6 py-3">Deskripsi</th>
-              <th className="px-6 py-3">Aksi</th>
+              <th className="px-6 py-3 text-center">ID Produk</th>
+              <th className="px-6 py-3 text-left">Nama Produk</th>
+              <th className="px-6 py-3 text-center">Harga</th>
+              <th className="px-6 py-3 text-center">Gambar</th>
+              <th className="px-6 py-3 text-left">Deskripsi</th>
+              <th className="px-6 py-3 text-center">Aksi</th>
             </tr>
           </thead>
           <tbody>
@@ -206,39 +230,47 @@ function ProdukTableComponent() {
                 </td>
               </tr>
             ) : (
-              products.map((p: any) =>
+              products.map((p) =>
                 editId === p.id_produk ? (
                   <tr key={p.id_produk} className="bg-yellow-50">
-                    <td className="px-6 py-4">{p.id_produk}</td>
-                    <td className="px-6 py-4">
-                      <input className="border px-2 py-1 w-full text-black" value={editForm.nama_produk} onChange={e => setEditForm({ ...editForm, nama_produk: e.target.value })} />
+                    <td className="px-6 py-4 text-center">{p.id_produk}</td>
+                    <td className="px-6 py-4 text-left">
+                      <input className="border px-2 py-1 w-full text-black rounded" value={editForm.nama_produk} onChange={e => setEditForm({ ...editForm, nama_produk: e.target.value })} />
+                    </td>
+                    <td className="px-6 py-4 text-center">
+                      <input className="border px-2 py-1 w-full text-black rounded" type="number" value={editForm.harga} onChange={e => setEditForm({ ...editForm, harga: e.target.value })} />
                     </td>
                     <td className="px-6 py-4">
-                      <input className="border px-2 py-1 w-full text-black" type="number" value={editForm.harga} onChange={e => setEditForm({ ...editForm, harga: e.target.value })} />
+                      <div className="flex justify-center">
+                        <input className="border px-2 py-1 w-full text-black rounded" value={editForm.foto} onChange={e => setEditForm({ ...editForm, foto: e.target.value })} />
+                      </div>
                     </td>
-                    <td className="px-6 py-4">
-                      <input className="border px-2 py-1 w-full text-black" value={editForm.foto} onChange={e => setEditForm({ ...editForm, foto: e.target.value })} />
+                    <td className="px-6 py-4 text-left">
+                      <input className="border px-2 py-1 w-full text-black rounded" value={editForm.deskripsi} onChange={e => setEditForm({ ...editForm, deskripsi: e.target.value })} />
                     </td>
-                    <td className="px-6 py-4">
-                      <input className="border px-2 py-1 w-full text-black" value={editForm.deskripsi} onChange={e => setEditForm({ ...editForm, deskripsi: e.target.value })} />
-                    </td>
-                    <td className="px-6 py-4 flex gap-2">
+                    <td className="px-6 py-4 flex justify-center gap-2">
                       <button className="bg-blue-600 text-white px-2 py-1 rounded" onClick={handleUpdate}>Simpan</button>
                       <button className="bg-gray-400 text-white px-2 py-1 rounded" onClick={() => setEditId(null)}>Batal</button>
                     </td>
                   </tr>
                 ) : (
                   <tr key={p.id_produk}>
-                    <td className="px-6 py-4">{p.id_produk}</td>
-                    <td className="px-6 py-4">{p.nama_produk}</td>
-                    <td className="px-6 py-4">{formatRupiah(p.harga)}</td>
+                    <td className="px-6 py-4 text-center">{p.id_produk}</td>
+                    <td className="px-6 py-4 text-left">{p.nama_produk}</td>
+                    <td className="px-6 py-4 text-center">{formatRupiah(p.harga)}</td>
                     <td className="px-6 py-4">
-                      <img src={p.foto} alt={p.nama_produk} className="w-16 h-16 object-cover rounded" />
+                      <div className="flex justify-center">
+                        <img src={p.foto} alt={p.nama_produk} className="w-16 h-16 object-cover rounded" />
+                      </div>
                     </td>
-                    <td className="px-6 py-4">{p.deskripsi}</td>
-                    <td className="px-6 py-4 flex gap-2">
-                      <button className="bg-yellow-400 text-white px-2 py-1 rounded" onClick={() => handleEdit(p)}>Edit</button>
-                      <button className="bg-red-500 text-white px-2 py-1 rounded" onClick={() => handleDelete(p.id_produk)}>Hapus</button>
+                    <td className="px-6 py-4 text-left">{p.deskripsi}</td>
+                    <td className="px-6 py-4 flex justify-center gap-2">
+                      <button className="bg-yellow-400 hover:bg-yellow-500 text-white px-3 py-1 rounded shadow transition" onClick={() => handleEdit(p)}>
+                        Edit
+                      </button>
+                      <button className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded shadow transition" onClick={() => handleDelete(p.id_produk)}>
+                        Hapus
+                      </button>
                     </td>
                   </tr>
                 )
@@ -251,7 +283,6 @@ function ProdukTableComponent() {
   );
 }
 
-// Export dengan dynamic import untuk disable SSR
 const ProdukTable = dynamic(() => Promise.resolve(ProdukTableComponent), {
   ssr: false,
   loading: () => (

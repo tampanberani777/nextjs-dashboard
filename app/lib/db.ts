@@ -1,11 +1,4 @@
-import { Pool } from 'pg';
+import { PrismaClient } from '../../generated/prisma'; // ← ini penting!
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false,
-  },
-});
-
-export default pool;
-        
+const prisma = new PrismaClient();
+export const sql = prisma;

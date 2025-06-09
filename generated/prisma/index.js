@@ -35,12 +35,12 @@ exports.Prisma = Prisma
 exports.$Enums = {}
 
 /**
- * Prisma Client JS version: 6.8.1
- * Query Engine version: 2060c79ba17c6bb9f5823312b6f6b7f4a845738e
+ * Prisma Client JS version: 6.9.0
+ * Query Engine version: 81e4af48011447c3cc503a190e86995b66d2a28e
  */
 Prisma.prismaVersion = {
-  client: "6.8.1",
-  engine: "2060c79ba17c6bb9f5823312b6f6b7f4a845738e"
+  client: "6.9.0",
+  engine: "81e4af48011447c3cc503a190e86995b66d2a28e"
 }
 
 Prisma.PrismaClientKnownRequestError = PrismaClientKnownRequestError;
@@ -162,7 +162,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "/mnt/c/Semester 4/SIWEB B/UTS GACOR/next123/nextjs-dashboard/generated/prisma",
+      "value": "C:\\Semester 4\\SIWEB B\\UTS GACOR\\next123\\nextjs-dashboard\\generated\\prisma",
       "fromEnvVar": null
     },
     "config": {
@@ -171,12 +171,16 @@ const config = {
     "binaryTargets": [
       {
         "fromEnvVar": null,
-        "value": "debian-openssl-3.0.x",
+        "value": "windows",
         "native": true
+      },
+      {
+        "fromEnvVar": null,
+        "value": "windows"
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "/mnt/c/Semester 4/SIWEB B/UTS GACOR/next123/nextjs-dashboard/prisma/schema.prisma",
+    "sourceFilePath": "C:\\Semester 4\\SIWEB B\\UTS GACOR\\next123\\nextjs-dashboard\\prisma\\schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
@@ -184,13 +188,13 @@ const config = {
     "schemaEnvPath": "../../.env"
   },
   "relativePath": "../../prisma",
-  "clientVersion": "6.8.1",
-  "engineVersion": "2060c79ba17c6bb9f5823312b6f6b7f4a845738e",
+  "clientVersion": "6.9.0",
+  "engineVersion": "81e4af48011447c3cc503a190e86995b66d2a28e",
   "datasourceNames": [
     "db"
   ],
   "activeProvider": "postgresql",
-  "postinstall": true,
+  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {
@@ -199,8 +203,8 @@ const config = {
       }
     }
   },
-  "inlineSchema": "generator client {\n  provider = \"prisma-client-js\"\n  output   = \"../generated/prisma\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel customers {\n  id        String @id @default(dbgenerated(\"uuid_generate_v4()\")) @db.Uuid\n  name      String @db.VarChar(255)\n  email     String @db.VarChar(255)\n  image_url String @db.VarChar(255)\n}\n\nmodel invoices {\n  id          String   @id @default(dbgenerated(\"uuid_generate_v4()\")) @db.Uuid\n  customer_id String   @db.Uuid\n  amount      Int\n  status      String   @db.VarChar(255)\n  date        DateTime @db.Date\n}\n\nmodel produk {\n  id_produk   String  @id\n  nama_produk String\n  harga       Int\n  foto        String?\n  deskripsi   String?\n}\n\nmodel revenue {\n  month   String @unique @db.VarChar(4)\n  revenue Int\n}\n\nmodel users {\n  id       String @id @default(dbgenerated(\"uuid_generate_v4()\")) @db.Uuid\n  name     String @db.VarChar(255)\n  email    String @unique\n  password String\n}\n",
-  "inlineSchemaHash": "f13953fdf393924a2be22b46051a2ecd8c11ecf5f79d7d0df9bcfaed4b7cccb1",
+  "inlineSchema": "generator client {\n  provider      = \"prisma-client-js\"\n  output        = \"../generated/prisma\"\n  binaryTargets = [\"native\", \"windows\"]\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel customers {\n  id        String @id @default(dbgenerated(\"uuid_generate_v4()\")) @db.Uuid\n  name      String @db.VarChar(255)\n  email     String @db.VarChar(255)\n  image_url String @db.VarChar(255)\n}\n\nmodel invoices {\n  id          String   @id @default(dbgenerated(\"uuid_generate_v4()\")) @db.Uuid\n  customer_id String   @db.Uuid\n  amount      Int\n  status      String   @db.VarChar(255)\n  date        DateTime @db.Date\n}\n\nmodel produk {\n  id_produk   String  @id\n  nama_produk String\n  harga       Int\n  foto        String?\n  deskripsi   String?\n}\n\nmodel revenue {\n  month   String @unique @db.VarChar(4)\n  revenue Int\n}\n\nmodel users {\n  id       String @id @default(dbgenerated(\"uuid_generate_v4()\")) @db.Uuid\n  name     String @db.VarChar(255)\n  email    String @unique\n  password String\n}\n",
+  "inlineSchemaHash": "5ff54cdfb7cadcc6cd11f44b815e1828f09034435d7d292b3d5bf29c7b14d046",
   "copyEngine": true
 }
 
@@ -239,8 +243,8 @@ exports.PrismaClient = PrismaClient
 Object.assign(exports, Prisma)
 
 // file annotations for bundling tools to include these files
-path.join(__dirname, "libquery_engine-debian-openssl-3.0.x.so.node");
-path.join(process.cwd(), "generated/prisma/libquery_engine-debian-openssl-3.0.x.so.node")
+path.join(__dirname, "query_engine-windows.dll.node");
+path.join(process.cwd(), "generated/prisma/query_engine-windows.dll.node")
 // file annotations for bundling tools to include these files
 path.join(__dirname, "schema.prisma");
 path.join(process.cwd(), "generated/prisma/schema.prisma")
