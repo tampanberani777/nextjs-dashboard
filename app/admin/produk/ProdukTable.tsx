@@ -28,28 +28,34 @@ function ProdukTableComponent() {
     foto: '',
     deskripsi: '',
   });
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+  const [totalItems, setTotalItems] = useState(0);
 
   useEffect(() => { setIsClient(true); }, []);
 
-  const fetchProducts = async (query = '') => {
+  const fetchProducts = async (query = '', page = 1) => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/produk${query ? `?q=${encodeURIComponent(query)}` : ''}`);
-      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+      const res = await fetch(`/api/produk?q=${encodeURIComponent(query)}&page=${page}&limit=${itemsPerPage}`);
       const data = await res.json();
-      setProducts(Array.isArray(data) ? data : []);
-    } catch { setProducts([]); }
+      setProducts(Array.isArray(data.produk) ? data.produk : []);
+      setTotalItems(data.total || 0);
+    } catch {
+      setProducts([]);
+    }
     setLoading(false);
   };
 
-  useEffect(() => { if (isClient) fetchProducts(); }, [isClient]);
+  useEffect(() => { if (isClient) fetchProducts(search, currentPage); }, [isClient, currentPage]);
 
   const handleSearchChange = (e) => {
     const val = e.target.value;
     setSearch(val);
     if (searchTimer) clearTimeout(searchTimer);
-    const timer = setTimeout(() => fetchProducts(val), 300);
+    const timer = setTimeout(() => fetchProducts(val, 1), 300);
     setSearchTimer(timer);
+    setCurrentPage(1);
   };
 
   const handleAdd = async (e) => {
@@ -63,7 +69,7 @@ function ProdukTableComponent() {
       if (res.ok) {
         setAddForm({ id_produk: '', nama_produk: '', harga: '', foto: '', deskripsi: '' });
         setShowAdd(false);
-        fetchProducts(search);
+        fetchProducts(search, currentPage);
       }
     } catch {}
   };
@@ -88,7 +94,7 @@ function ProdukTableComponent() {
       });
       if (res.ok) {
         setEditId(null);
-        fetchProducts(search);
+        fetchProducts(search, currentPage);
       }
     } catch {}
   };
@@ -97,28 +103,13 @@ function ProdukTableComponent() {
     if (!confirm('Yakin ingin menghapus produk ini?')) return;
     try {
       const res = await fetch(`/api/produk/${id}`, { method: 'DELETE' });
-      if (res.ok) fetchProducts(search);
+      if (res.ok) fetchProducts(search, currentPage);
     } catch {}
   };
 
-  if (!isClient) {
-    return (
-      <div className="animate-pulse">
-        <div className="h-10 bg-gray-200 rounded w-full max-w-sm mb-4"></div>
-        <div className="h-10 bg-blue-200 rounded w-40 mb-4"></div>
-        <div className="bg-white rounded shadow overflow-hidden">
-          <div className="h-12 bg-gray-100"></div>
-          <div className="p-4">
-            <div className="text-center text-gray-400">Loading...</div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div suppressHydrationWarning>
-      {/* Search & Tombol Tambah */}
+      {/* Search & Tambah */}
       <div className="flex flex-col md:flex-row md:items-center gap-2 mb-4">
         <input
           type="text"
@@ -134,80 +125,6 @@ function ProdukTableComponent() {
           {showAdd ? 'Tutup Formulir' : 'Tambah Produk'}
         </button>
       </div>
-
-      {/* Form Tambah Produk */}
-      {showAdd && (
-        <form
-          onSubmit={handleAdd}
-          className="mb-6 max-w-xl mx-auto bg-white rounded-lg shadow-md p-6 border border-gray-200"
-        >
-          <h2 className="text-lg font-semibold mb-4 text-gray-700">Tambah Produk Baru</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block mb-1 text-sm text-gray-600">ID Produk</label>
-              <input
-                className="border border-gray-300 rounded-md px-3 py-2 w-full text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="ID Produk"
-                value={addForm.id_produk}
-                onChange={e => setAddForm({ ...addForm, id_produk: e.target.value })}
-                required
-              />
-            </div>
-            <div>
-              <label className="block mb-1 text-sm text-gray-600">Nama Produk</label>
-              <input
-                className="border border-gray-300 rounded-md px-3 py-2 w-full text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Nama Produk"
-                value={addForm.nama_produk}
-                onChange={e => setAddForm({ ...addForm, nama_produk: e.target.value })}
-                required
-              />
-            </div>
-            <div>
-              <label className="block mb-1 text-sm text-gray-600">Harga</label>
-              <input
-                className="border border-gray-300 rounded-md px-3 py-2 w-full text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Harga"
-                type="number"
-                value={addForm.harga}
-                onChange={e => setAddForm({ ...addForm, harga: e.target.value })}
-                required
-              />
-            </div>
-            <div>
-              <label className="block mb-1 text-sm text-gray-600">Link Gambar</label>
-              <input
-                className="border border-gray-300 rounded-md px-3 py-2 w-full text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Link Gambar"
-                value={addForm.foto}
-                onChange={e => setAddForm({ ...addForm, foto: e.target.value })}
-                required
-              />
-            </div>
-            <div className="md:col-span-2">
-              <label className="block mb-1 text-sm text-gray-600">Deskripsi</label>
-              <input
-                className="border border-gray-300 rounded-md px-3 py-2 w-full text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Deskripsi"
-                value={addForm.deskripsi}
-                onChange={e => setAddForm({ ...addForm, deskripsi: e.target.value })}
-                required
-              />
-            </div>
-          </div>
-          <div className="mt-6 flex justify-end">
-            <button
-              type="submit"
-              className="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-md font-semibold shadow transition"
-            >
-              Simpan
-            </button>
-          </div>
-        </form>
-      )}
-
-      {/* Loading */}
-      {loading && <div className="text-center py-4">Loading...</div>}
 
       {/* Tabel Produk */}
       <div className="overflow-x-auto bg-white rounded shadow">
@@ -230,73 +147,57 @@ function ProdukTableComponent() {
                 </td>
               </tr>
             ) : (
-              products.map((p) =>
-                editId === p.id_produk ? (
-                  <tr key={p.id_produk} className="bg-yellow-50">
-                    <td className="px-6 py-4 text-center">{p.id_produk}</td>
-                    <td className="px-6 py-4 text-left">
-                      <input className="border px-2 py-1 w-full text-black rounded" value={editForm.nama_produk} onChange={e => setEditForm({ ...editForm, nama_produk: e.target.value })} />
-                    </td>
-                    <td className="px-6 py-4 text-center">
-                      <input className="border px-2 py-1 w-full text-black rounded" type="number" value={editForm.harga} onChange={e => setEditForm({ ...editForm, harga: e.target.value })} />
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex justify-center">
-                        <input className="border px-2 py-1 w-full text-black rounded" value={editForm.foto} onChange={e => setEditForm({ ...editForm, foto: e.target.value })} />
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-left">
-                      <input className="border px-2 py-1 w-full text-black rounded" value={editForm.deskripsi} onChange={e => setEditForm({ ...editForm, deskripsi: e.target.value })} />
-                    </td>
-                    <td className="px-6 py-4 flex justify-center gap-2">
-                      <button className="bg-blue-600 text-white px-2 py-1 rounded" onClick={handleUpdate}>Simpan</button>
-                      <button className="bg-gray-400 text-white px-2 py-1 rounded" onClick={() => setEditId(null)}>Batal</button>
-                    </td>
-                  </tr>
-                ) : (
-                  <tr key={p.id_produk}>
-                    <td className="px-6 py-4 text-center">{p.id_produk}</td>
-                    <td className="px-6 py-4 text-left">{p.nama_produk}</td>
-                    <td className="px-6 py-4 text-center">{formatRupiah(p.harga)}</td>
-                    <td className="px-6 py-4">
-                      <div className="flex justify-center">
-                        <img src={p.foto} alt={p.nama_produk} className="w-16 h-16 object-cover rounded" />
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-left">{p.deskripsi}</td>
-                    <td className="px-6 py-4 flex justify-center gap-2">
-                      <button className="bg-yellow-400 hover:bg-yellow-500 text-white px-3 py-1 rounded shadow transition" onClick={() => handleEdit(p)}>
-                        Edit
-                      </button>
-                      <button className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded shadow transition" onClick={() => handleDelete(p.id_produk)}>
-                        Hapus
-                      </button>
-                    </td>
-                  </tr>
-                )
-              )
+              products.map((p) => (
+                <tr key={p.id_produk}>
+                  <td className="px-6 py-4 text-center">{p.id_produk}</td>
+                  <td className="px-6 py-4 text-left">{p.nama_produk}</td>
+                  <td className="px-6 py-4 text-center">{formatRupiah(p.harga)}</td>
+                  <td className="px-6 py-4">
+                    <div className="flex justify-center">
+                      <img src={p.foto} alt={p.nama_produk} className="w-16 h-16 object-cover rounded" />
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 text-left">{p.deskripsi}</td>
+                  <td className="px-6 py-4 flex justify-center gap-2">
+                    <button className="bg-yellow-400 hover:bg-yellow-500 text-white px-3 py-1 rounded shadow transition" onClick={() => handleEdit(p)}>
+                      Edit
+                    </button>
+                    <button className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded shadow transition" onClick={() => handleDelete(p.id_produk)}>
+                      Hapus
+                    </button>
+                  </td>
+                </tr>
+              ))
             )}
           </tbody>
         </table>
+      </div>
+
+      {/* Pagination */}
+      <div className="mt-6 flex justify-center items-center gap-2">
+        <button
+          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+          className="px-3 py-1 rounded bg-gray-700 text-white disabled:opacity-50"
+          disabled={currentPage === 1}
+        >
+          Prev
+        </button>
+        <span className="text-white">
+          Page {currentPage} of {Math.ceil(totalItems / itemsPerPage)}
+        </span>
+        <button
+          onClick={() => setCurrentPage((prev) =>
+            prev < Math.ceil(totalItems / itemsPerPage) ? prev + 1 : prev
+          )}
+          className="px-3 py-1 rounded bg-gray-700 text-white disabled:opacity-50"
+          disabled={currentPage === Math.ceil(totalItems / itemsPerPage)}
+        >
+          Next
+        </button>
       </div>
     </div>
   );
 }
 
-const ProdukTable = dynamic(() => Promise.resolve(ProdukTableComponent), {
-  ssr: false,
-  loading: () => (
-    <div className="animate-pulse">
-      <div className="h-10 bg-gray-200 rounded w-full max-w-sm mb-4"></div>
-      <div className="h-10 bg-blue-200 rounded w-40 mb-4"></div>
-      <div className="bg-white rounded shadow overflow-hidden">
-        <div className="h-12 bg-gray-100"></div>
-        <div className="p-4">
-          <div className="text-center text-gray-400">Loading...</div>
-        </div>
-      </div>
-    </div>
-  )
-});
-
+const ProdukTable = dynamic(() => Promise.resolve(ProdukTableComponent), { ssr: false });
 export default ProdukTable;
