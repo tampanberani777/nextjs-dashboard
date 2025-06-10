@@ -1,5 +1,5 @@
 'use client';
-
+{/* app/admin/transaksi/TransaksiTable.tsx */}
 import React, { useState, useEffect } from 'react';
 
 function formatRupiah(num) {

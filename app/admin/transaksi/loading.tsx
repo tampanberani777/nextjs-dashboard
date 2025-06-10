@@ -1,3 +1,4 @@
+{/* app/admin/transaksi/loading.tsx */}
 export default function Loading() {
   return (
     <div className="animate-pulse p-4 space-y-4">

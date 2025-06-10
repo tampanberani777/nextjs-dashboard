@@ -1,5 +1,7 @@
-'use client';
 
+
+'use client';
+{/* app/admin/ProdukTable.tsx */}
 import React, { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 

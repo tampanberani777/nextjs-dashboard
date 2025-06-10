@@ -1,4 +1,4 @@
-
+{/* app/admin/loading.tsx */}
 
 export default function Loading() {
   return (

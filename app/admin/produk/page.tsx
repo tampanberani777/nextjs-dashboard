@@ -1,3 +1,4 @@
+{/* app/admin/page.tsx */}
 import ProdukTable from './ProdukTable';
 
 export default function ProdukPage() {

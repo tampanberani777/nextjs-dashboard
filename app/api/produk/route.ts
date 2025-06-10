@@ -1,3 +1,5 @@
+{/* app/api/produk/route.ts */}
+
 import { NextRequest, NextResponse } from 'next/server';
 import { sql } from '@/app/lib/neondb'; // pastikan path ini benar
 
@@ -19,7 +21,7 @@ export async function GET(request: NextRequest) {
           LOWER(nama_produk) LIKE LOWER('%' || ${q} || '%') OR
           CAST(id_produk AS TEXT) LIKE '%' || ${q} || '%' OR
           LOWER(deskripsi) LIKE LOWER('%' || ${q} || '%')
-        ORDER BY id_produk ASC
+        ORDER BY CAST(REGEXP_REPLACE(id_produk, '[^0-9]', '', 'g') AS INT) ASC
         LIMIT ${limit} OFFSET ${offset}
       `;
 
@@ -34,7 +36,7 @@ export async function GET(request: NextRequest) {
     } else {
       result = await sql`
         SELECT * FROM produk
-        ORDER BY id_produk ASC
+        ORDER BY CAST(REGEXP_REPLACE(id_produk, '[^0-9]', '', 'g') AS INT) ASC
         LIMIT ${limit} OFFSET ${offset}
       `;
       const countRes = await sql`SELECT COUNT(*) FROM produk`;

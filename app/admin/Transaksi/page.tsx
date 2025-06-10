@@ -1,3 +1,4 @@
+{/* app/admin/transaksi/page.tsx */}
 import TransaksiTable from './TransaksiTable';
 
 export default function TransaksiPage() {

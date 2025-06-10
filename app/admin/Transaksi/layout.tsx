@@ -1,3 +1,4 @@
+{/* app/admin/transaksi/layout.tsx */}
 import React from 'react'
 
 export const metadata = {
