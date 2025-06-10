@@ -37,23 +37,26 @@ function ProdukTableComponent() {
   }, []);
 
   const fetchProducts = async (query = '', page = 1) => {
-    setLoading(true);
-    try {
-      const res = await fetch(`/api/produk?q=${encodeURIComponent(query)}&page=${page}`);
-      const json = await res.json();
-      const sorted = (json.data || []).sort((a: any, b: any) => {
-        const idA = parseInt(a.id_produk.replace(/\D/g, '')) || 0;
-        const idB = parseInt(b.id_produk.replace(/\D/g, '')) || 0;
-        return idA - idB;
-      });
-      setProducts(sorted);
-      setTotalPages(Math.ceil(json.total / 5));
-    } catch {
-      setProducts([]);
-      setTotalPages(1);
-    }
-    setLoading(false);
-  };
+  setLoading(true);
+  try {
+    const res = await fetch(`/api/produk?q=${encodeURIComponent(query)}&page=${page}`);
+    const json = await res.json();
+
+    // Sort produk berdasarkan ID produk (angka di dalamnya)
+    const sorted = (json.data || []).sort((a: any, b: any) => {
+      const extractIdNumber = (id: string) => parseInt(id.replace(/\D/g, '') || '0');
+      return extractIdNumber(a.id_produk) - extractIdNumber(b.id_produk);
+    });
+
+    setProducts(sorted);
+    setTotalPages(Math.ceil(json.total / 5));
+  } catch {
+    setProducts([]);
+    setTotalPages(1);
+  }
+  setLoading(false);
+};
+
 
   useEffect(() => {
     if (isClient) fetchProducts(search, currentPage);

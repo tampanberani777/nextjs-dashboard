@@ -54,7 +54,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="hover:text-pink-600 hover:scale-110 transition-all">
                   <FaInstagram />
                 </a>
-                <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="hover:text-blue-500 hover:scale-110 transition-all">
+                <a href="https://facebook.com" target="_blank" rel="noopener norefer-rer" className="hover:text-blue-500 hover:scale-110 transition-all">
                   <FaFacebook />
                 </a>
                 <a href="https://wa.me" target="_blank" rel="noopener noreferrer" className="hover:text-green-500 hover:scale-110 transition-all">
