@@ -30,7 +30,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <nav className="flex flex-col p-6 space-y-4">
             <Link href="/admin" className="px-4 py-2 rounded hover:bg-gray-700 transition">Preview</Link>
             <Link href="/admin/produk" className="px-4 py-2 rounded hover:bg-gray-700 transition">Produk</Link>
-            <Link href="/admin/transaksi" className="px-4 py-2 rounded hover:bg-gray-700 transition">Transaksi</Link>
+            <Link href="/admin/transaksii" className="px-4 py-2 rounded hover:bg-gray-700 transition">Transaksi</Link>
           </nav>
         </div>
         <div className="p-6">
