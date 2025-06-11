@@ -3,7 +3,6 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
-// Fungsi format rupiah
 function formatRupiah(num: number) {
   return 'Rp ' + num.toLocaleString('id-ID');
 }
@@ -22,7 +21,7 @@ export default async function CatalogPage({ searchParams }: { searchParams?: { p
     notFound();
   }
 
-  // Ambil produk untuk halaman saat ini
+  // Ambil produk
   const products = await sql.produk.findMany({
     orderBy: { harga: 'asc' },
     skip: offset,
@@ -30,13 +29,13 @@ export default async function CatalogPage({ searchParams }: { searchParams?: { p
   });
 
   return (
-    <div className="min-h-screen bg-gray-100 text-gray-900 px-4 sm:px-8 py-12">
-      <h1 className="text-4xl font-bold mb-10 text-center text-gray-800">Katalog Produk</h1>
+    <div className="min-h-screen px-4 sm:px-8 py-12">
+      <h1 className="text-4xl font-bold mb-10 text-center text-white">Katalog Produk</h1>
 
-      {/* Produk Grid */}
+      {/* Grid Produk */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
         {products.length === 0 && (
-          <div className="col-span-full text-center text-gray-500">
+          <div className="col-span-full text-center text-gray-300">
             Tidak ada produk tersedia.
           </div>
         )}
@@ -45,7 +44,7 @@ export default async function CatalogPage({ searchParams }: { searchParams?: { p
           <Link
             key={product.id_produk}
             href={`/catalog/${product.id_produk}`}
-            className="transform transition-transform duration-300 hover:scale-105 hover:shadow-xl bg-white rounded-xl shadow-md overflow-hidden flex flex-col cursor-pointer"
+            className="transform transition-transform duration-300 hover:scale-105 hover:shadow-xl bg-white text-black rounded-xl shadow-md overflow-hidden flex flex-col cursor-pointer"
           >
             <div className="relative w-full h-48">
               <Image
@@ -69,23 +68,23 @@ export default async function CatalogPage({ searchParams }: { searchParams?: { p
         ))}
       </div>
 
-      {/* Pagination */}
-      <div className="flex justify-center items-center mt-10 gap-4">
+      {/* Navigasi Halaman */}
+      <div className="flex justify-center items-center mt-10 gap-4 text-white">
         {currentPage > 1 && (
           <Link
             href={`/catalog?page=${currentPage - 1}`}
-            className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+            className="px-4 py-2 bg-gray-700 rounded hover:bg-gray-600"
           >
             ← Sebelumnya
           </Link>
         )}
-        <span className="text-gray-700 font-medium">
+        <span className="font-medium">
           Halaman {currentPage} dari {totalPages}
         </span>
         {currentPage < totalPages && (
           <Link
             href={`/catalog?page=${currentPage + 1}`}
-            className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+            className="px-4 py-2 bg-gray-700 rounded hover:bg-gray-600"
           >
             Selanjutnya →
           </Link>

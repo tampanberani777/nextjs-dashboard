@@ -5,9 +5,13 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { UserCircleIcon } from '@heroicons/react/24/outline';
 import { FaInstagram, FaFacebook, FaWhatsapp } from 'react-icons/fa';
+import { useEffect, useRef, useState } from 'react';
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const [showProfile, setShowProfile] = useState(false);
+  const profileRef = useRef<HTMLDivElement>(null);
+
   const navLinks = [
     { href: '/', label: 'Home' },
     { href: '/catalog', label: 'Catalog' },
@@ -15,9 +19,25 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     { href: '/testimoni', label: 'Testimoni' },
   ];
 
+  // Tutup dropdown saat klik di luar
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (profileRef.current && !profileRef.current.contains(e.target as Node)) {
+        setShowProfile(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleLogout = () => {
+    alert('Berhasil logout!');
+    window.location.href = '/login';
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-[#1e1f29] to-[#312c49] text-white">
-      <header className="flex justify-between items-center p-4 border-b border-gray-500">
+      <header className="flex justify-between items-center p-4 border-b border-gray-500 relative">
         <AcmeLogo />
         <nav className="hidden md:flex gap-6">
           {navLinks.map((link) => (
@@ -32,10 +52,38 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             </Link>
           ))}
         </nav>
-        <Link href="/login">
-          <UserCircleIcon className="w-8 h-8 hover:text-red-500" />
-        </Link>
+
+        {/* Profile Icon & Dropdown */}
+        <div className="relative" ref={profileRef}>
+          <UserCircleIcon
+            className="w-8 h-8 hover:text-red-500 cursor-pointer"
+            onClick={() => setShowProfile(!showProfile)}
+          />
+          {showProfile && (
+            <div className="absolute right-0 mt-2 w-64 bg-white text-black rounded-lg shadow-lg z-50 p-4">
+              <div className="flex items-center gap-3 mb-4">
+                <img
+                  src="https://i.pravatar.cc/50"
+                  alt="Profile"
+                  className="w-12 h-12 rounded-full"
+                />
+                <div>
+                  <div className="font-semibold text-base">Akbar</div>
+                  <div className="text-sm text-gray-500">akbar@email.com</div>
+                   <div className="text-sm text-gray-500">081314453209</div>
+                </div>
+              </div>
+              <button
+                onClick={handleLogout}
+                className="w-full bg-red-500 text-white py-2 rounded hover:bg-red-600 transition"
+              >
+                Logout
+              </button>
+            </div>
+          )}
+        </div>
       </header>
+
       <main className="flex-1">{children}</main>
 
       <footer className="text-center p-4 border-t border-gray-500">

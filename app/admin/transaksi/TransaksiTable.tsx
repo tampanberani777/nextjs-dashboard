@@ -23,7 +23,7 @@ export default function TransaksiTable() {
   const itemsPerPage = 5;
   const [produkList, setProdukList] = useState<{ id: string; nama_produk: string }[]>([]);
   const [lastId, setLastId] = useState<string | null>(null);
-
+  
   const [editForm, setEditForm] = useState({
     product_id: '',
     buyer: '',
@@ -62,14 +62,14 @@ export default function TransaksiTable() {
 
 const fetchLastId = async () => {
   try {
-    const res = await fetch(`/api/transaksi`);
+    const res = await fetch(`/api/transaksi?all=true`);
     const data = await res.json();
     const rows = data?.rows || [];
 
-    // Cari ID transaksi dengan angka terbesar
+    // Cari ID terbesar
     const max = rows.reduce((acc: string, curr: any) => {
-      const currNum = parseInt(curr.id.slice(1));
-      const accNum = parseInt(acc.slice(1));
+      const currNum = parseInt(curr.id.replace(/[^\d]/g, '')); // buang huruf
+      const accNum = parseInt(acc.replace(/[^\d]/g, ''));
       return currNum > accNum ? curr.id : acc;
     }, 'T000');
 
@@ -111,13 +111,13 @@ const fetchLastId = async () => {
     if (res.ok) {
       const nextId = getNextIdFromLast(addForm.id);
       setAddForm({
-        id: nextId,
+        id: '',
         product_id: '',
         buyer: '',
         date: '',
         total: '',
       });
-      setLastId(nextId);
+      ;
       setShowAdd(false);
       fetchTransaksi(search, currentPage);
     } else {

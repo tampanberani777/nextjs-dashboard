@@ -7,14 +7,16 @@ function formatRupiah(num: number) {
 }
 
 export default async function HomePage() {
-  const products = await fetchProducts(4); // tampilkan 4 produk unggulan
+  const products = await fetchProducts(4); // Ambil 4 produk unggulan
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900 px-4 py-10 sm:px-8">
+    <div className="min-h-screen px-4 py-10 sm:px-8">
       {/* Pengenalan Toko */}
       <section className="text-center mb-12">
-        <h1 className="text-4xl font-bold mb-2">Selamat Datang di Rangga Gaming Store!</h1>
-        <p className="text-lg text-gray-600">
+        <h1 className="text-4xl font-bold mb-2 text-white">
+          Selamat Datang di Rangga Gaming Store!
+        </h1>
+        <p className="text-lg text-gray-300">
           Toko Gaming dengan harga terjangkau dan berkualitas
         </p>
       </section>
@@ -23,7 +25,7 @@ export default async function HomePage() {
       <section className="mb-12">
         <div className="relative w-full h-60 rounded-xl overflow-hidden shadow-lg">
           <Image
-            src="/toko/dalemtoko.jpg" 
+            src="/toko/dalemtoko.jpg"
             alt="Banner Promo"
             layout="fill"
             objectFit="cover"
@@ -34,12 +36,12 @@ export default async function HomePage() {
 
       {/* Produk Unggulan */}
       <section>
-        <h2 className="text-2xl font-semibold mb-6 text-center">Produk Unggulan</h2>
+        <h2 className="text-2xl font-semibold mb-6 text-center text-white">Produk Unggulan</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
           {products.map((product) => (
             <div
               key={product.id_produk}
-              className="bg-white rounded-xl shadow hover:shadow-lg transition p-4 flex flex-col"
+              className="bg-white rounded-xl shadow hover:shadow-lg transition p-4 flex flex-col text-black"
             >
               <div className="relative w-full h-40 mb-4">
                 <Image
@@ -59,8 +61,11 @@ export default async function HomePage() {
           ))}
         </div>
         <div className="text-center mt-6">
-          <Link href="/catalog" className="text-blue-600 hover:underline">
-            Lihat Semua Produk
+          <Link
+            href="/catalog"
+            className="text-blue-400 hover:underline hover:text-blue-300 transition"
+          >
+            Lihat Semua Produk →
           </Link>
         </div>
       </section>
