@@ -1,8 +1,7 @@
-// File: app/api/transaksi/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { sql } from '../../lib/neondb';
 
-// GET /api/transaksi?q=...&page=...&limit=...
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -10,18 +9,6 @@ export async function GET(request: NextRequest) {
     const page = Number(searchParams.get('page') || '1');
     const limit = Number(searchParams.get('limit') || '5');
     const offset = (page - 1) * limit;
-
-    if (q === '__lastid') {
-      const maxIdRes = await sql`
-        SELECT MAX(CAST(SUBSTRING(id FROM 2) AS INTEGER)) AS max_id
-        FROM transactions
-        WHERE id ~ '^T[0-9]+'
-      `;
-
-      const maxId = maxIdRes[0]?.max_id || 0;
-      const newId = `T${(Number(maxId) + 1).toString().padStart(3, '0')}`;
-      return NextResponse.json({ nextId: newId });
-    }
 
     const rows = await sql`
       SELECT id, product_id, buyer, date, total
@@ -48,6 +35,21 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Database error:', error);
     return NextResponse.json({ error: 'Gagal mengambil data transaksi' }, { status: 500 });
+  }
+}
+
+// GET ID TERBESAR
+export async function HEAD() {
+  try {
+    const result = await sql`
+      SELECT id FROM transactions
+      ORDER BY CAST(SUBSTRING(id FROM 2) AS INTEGER) DESC
+      LIMIT 1
+    `;
+    const lastId = result.length > 0 ? result[0].id : "T000";
+    return NextResponse.json({ lastId });
+  } catch (err) {
+    return NextResponse.json({ error: 'Gagal mengambil ID terakhir' }, { status: 500 });
   }
 }
 
