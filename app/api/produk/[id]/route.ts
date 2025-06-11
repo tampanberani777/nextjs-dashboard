@@ -1,18 +1,18 @@
-{/* app/api/produk/[id]/route.ts */}
 import { NextRequest, NextResponse } from 'next/server';
 import { sql } from '../../../lib/neondb';
 
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(request: NextRequest, context: { params: { id: string } }) {
   try {
+    const { id } = context.params;
     const body = await request.json();
     const { nama_produk, harga, foto, deskripsi } = body;
-    
+
     await sql`
       UPDATE produk
       SET nama_produk = ${nama_produk}, harga = ${harga}, foto = ${foto}, deskripsi = ${deskripsi}
-      WHERE id_produk = ${params.id}
+      WHERE id_produk = ${id}
     `;
-    
+
     return NextResponse.json({ message: 'Produk berhasil diupdate' });
   } catch (error) {
     console.error('Database error:', error);
@@ -20,9 +20,12 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, context: { params: { id: string } }) {
   try {
-    await sql`DELETE FROM produk WHERE id_produk = ${params.id}`;
+    const { id } = context.params;
+
+    await sql`DELETE FROM produk WHERE id_produk = ${id}`;
+
     return NextResponse.json({ message: 'Produk berhasil dihapus' });
   } catch (error) {
     console.error('Database error:', error);
