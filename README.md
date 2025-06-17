@@ -8,11 +8,12 @@ Nama Kelompok:
 Deskripsi Proyek:
 Website yang kami buat adalah Rangga gaming Store. Rangga gaming Store adalah website yang menyediakan berbagai gaming gear website ini terdiri dari halaman utama, katalog, profil anggota,profil toko dan testimoni.
 
-Link GitHub:https://github.com/tampanberani777/Siweb-Asik.git
+Link GitHub:https://github.com/tampanberani777/nextjs-dashboard
 
 
 Link Deploy: https://siwebasikk.vercel.app/
-
+Username: admin123 ataau user123
+Password sama yaitu 12345
 
 Bagian Pengerjaan Anggota Kelompok:
 Daniel - Mengerjakan halaman Utama, catalog
