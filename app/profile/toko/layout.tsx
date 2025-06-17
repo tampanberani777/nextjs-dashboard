@@ -17,6 +17,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     { href: '/catalog', label: 'Catalog' },
     { href: '/profile/anggota', label: 'Profile' },
     { href: '/testimoni', label: 'Testimoni' },
+    { href: '/kontak', label: 'Kontak' },
   ];
 
   // Tutup dropdown saat klik di luar

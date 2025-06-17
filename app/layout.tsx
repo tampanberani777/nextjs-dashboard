@@ -19,6 +19,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     { href: '/catalog', label: 'Catalog' },
     { href: '/profile/anggota', label: 'Profile' },
     { href: '/testimoni', label: 'Testimoni' },
+    { href: '/kontak', label: 'Kontak' },
   ];
 
   const showNav = pathname === '/';
